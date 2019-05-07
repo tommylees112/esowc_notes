@@ -6,6 +6,7 @@
 * Working with masks
 * Lookup values from xarray in a dict
 * Extracting individual pixels
+* I/O
 """
 
 import xarray as xr
@@ -31,6 +32,11 @@ def get_non_coord_variables(ds):
     """ Return a list of the variable names EXCLUDING the coordinates (lat,lon,time) """
     var_names = [var for var in ds.variables.keys() if var not in ds.coords.keys()]
     return var_names
+
+
+def rename_lat_lon(ds):
+    """ rename longitude=>lon, latitude=>lat """
+    return ds.rename({"longitude": "lon", "latitude": "lat"})
 
 
 # ------------------------------------------------------------------------------
@@ -300,6 +306,25 @@ def mask_multiple_conditions(da, vals_to_keep):
     return msk
 
 
+def get_ds_mask(ds):
+    """
+    NOTE:
+    - assumes that all of the null values from the HOLAPS file are valid null values (e.g. water bodies). Could also be invalid nulls due to poor data processing / lack of satellite input data for a pixel!
+    """
+    warnings.warn('assumes that all of the null values from the HOLAPS file are valid null values (e.g. water bodies). Could also be invalid nulls due to poor data processing / lack of satellite input data for a pixel!')
+    warnings.warn('How to collapse the time dimension in the holaps mask? Here we just select the first time because all of the valid pixels are constant for first, last second last. Need to check this is true for all timesteps')
+    mask = ds.isnull().isel(time=0).drop('time')
+    mask.name = 'mask'
+
+    return mask
+
+
+def apply_same_mask(ds, reference_ds):
+    """ Apply the same mask from reference_ds to ds
+    """
+    dataMask = get_ds_mask(reference_ds)
+    return get_unmasked_data(dataArray, dataMask)
+
 
 # ------------------------------------------------------------------------------
 # Lookup values from xarray in a dict
@@ -397,3 +422,49 @@ def turn_tuple_to_point(loc):
     from shapely.geometry.point import Point
     point = Point(loc[1], loc[0])
     return point
+
+# ------------------------------------------------------------------------------
+# I/O
+# ------------------------------------------------------------------------------
+
+def merge_data_arrays(*DataArrays):
+    das = [da.name for da in DataArrays]
+    print(f"Merging data: {das}")
+    ds = xr.merge([*DataArrays])
+    return ds
+
+
+def save_netcdf(xr_obj, filepath, force=False):
+    """"""
+    if not Path(filepath).is_file():
+        xr_obj.to_netcdf(filepath)
+        print(f"File Saved: {filepath}")
+    elif force:
+        print(f"Filepath {filepath} already exists! Overwriting...")
+        xr_obj.to_netcdf(filepath)
+        print(f"File Saved: {filepath}")
+    else:
+        print(f"Filepath {filepath} already exists!")
+
+    return
+
+
+def pickle_files(filepaths, vars):
+    """ """
+    assert len(filepaths) == len(vars), f"filepaths should be same size as vars because each variable needs a filepath! currently: len(filepaths): {len(filepaths)} len(vars): {len(vars)}"
+
+    for i, filepath in enumerate(filepaths):
+        save_pickle(filepath, variable)
+
+
+def load_pickle(filepath):
+    """ load a pickled object from the filepath """
+    with open(filepath, 'rb') as f:
+        return pickle.load(f)
+
+
+def save_pickle(filepath, variable):
+    """ pickle a `variable` to the given `filepath`"""
+    with open(filepath, 'wb') as f:
+        pickle.dump(variable, f)
+    return

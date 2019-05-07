@@ -5,5 +5,6 @@ notebooks/.ipynb_checkpoints
 .ipynb_checkpoints
 
 data/countries_shp
-data/.zip
+data/*.zip*
 *.nc
+*.csv
