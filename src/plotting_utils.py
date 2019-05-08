@@ -331,7 +331,7 @@ def plot_normalised_seasonality(ds, double_year=False, variance=False):
 # Spatio-temporal plots
 # ------------------------------------------------------------------------------
 
-def plot_seasonal_spatial_means(seasonal_da, ax=None **kwargs):
+def plot_seasonal_spatial_means(seasonal_da, ax=None, **kwargs):
     """ for a given seasonal xarray object plot the 4 seasons spatial means"""
     assert 'season' in [key for key in seasonal_da.coords.keys()], f"'season' should be a coordinate in the seasonal_da object for using this plotting functionality. \n Currently: {[key for key in seasonal_da.coords.keys()]}"
     assert isinstance(seasonal_da, xr.DataArray), f"seasonal_da should be of type: xr.DataArray. Currently: {type(seasonal_da)}"
