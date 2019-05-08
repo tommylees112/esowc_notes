@@ -8,3 +8,7 @@ data/countries_shp
 data/*.zip*
 *.nc
 *.csv
+
+__pycache__
+*.pyc
+
