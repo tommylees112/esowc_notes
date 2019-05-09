@@ -39,6 +39,10 @@ def rename_lat_lon(ds):
     return ds.rename({"longitude": "lon", "latitude": "lat"})
 
 
+def ls(dir):
+    """ list the contents of a directory (like ls in bash) """
+    return [f for f in dir.iterdir()]
+
 # ------------------------------------------------------------------------------
 # Collapsing Time Dimensions
 # ------------------------------------------------------------------------------

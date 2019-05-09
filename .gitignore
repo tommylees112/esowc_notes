@@ -11,3 +11,4 @@ data/*.zip*
 
 __pycache__
 *.pyc
+*.zip
