@@ -16,3 +16,5 @@ __pycache__
 example_scripts/parallel_python/copy_to_server.sh
 example_scripts/parallel_python/
 docs/presentations
+
+copy_to_server.sh
