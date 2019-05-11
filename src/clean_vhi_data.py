@@ -5,6 +5,10 @@ assign time stamp
 assign lat lon
 create new dataset with these dimensions
 Save the output file to new folder
+
+# From the base of the download to the root
+ftp.star.nesdis.noaa.gov/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/
+cd '../'*8
 """
 
 import time
@@ -137,6 +141,19 @@ def create_filename(t, netcdf_filepath):
     new_filename = f"STAR_{substr}_{t.year}_{t.month}_{t.day}_VH.nc"
     return new_filename
 
+
+# ------------------------------------------------------------------------------
+# 1. Chop out East Africa
+# ------------------------------------------------------------------------------
+# from src.api_helpers import Region
+
+kenya_region = Region(
+    name='kenya',
+    lonmin=33.501,
+    lonmax=42.283,
+    latmin=-5.202,
+    latmax=6.002,
+)
 
 
 
