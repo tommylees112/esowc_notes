@@ -51,11 +51,15 @@ def batch_ftp_request(filenames, output_dir=OUTPUT_DIR):
 
 def each_file_individually(filenames, output_dir=OUTPUT_DIR):
     """ individual context for each file (will that overload that poor server?)"""
+    assert False, "Is this irresponsible?"
     with FTP('ftp.star.nesdis.noaa.gov') as ftp:
         ftp.login()
         ftp.cwd('/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/')
-
+        for filename in filenames:
+            output_filename = output_dir / filename
+            download_file_from_ftp(ftp, filename, output_filename)
     return
+
 
 def chunks(l, n):
     """ return a generator object which chunks list into sublists of size n
@@ -91,10 +95,25 @@ def test():
     # get the filenames
     vhi_files = get_ftp_filenames()[:1]
     batches = [batch for batch in chunks(vhi_files,100)][0]
-    pool = multiprocessing.Pool(processes=100)
+
+    # initialise ftp connection
+    ftp = FTP('ftp.star.nesdis.noaa.gov')
+    ftp.login()
+    ftp.cwd('/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/')
+
+    # download the file individually 
+    print("Downloading file individually")
+    filename = batches[0]
+    output_filename = output_dir / filename
+    download_file_from_ftp(ftp, filename, output_filename)
 
     ipdb.set_trace()
+    ftp.quit()
+
+    print("Downloading file in `parallel`")
+    pool = multiprocessing.Pool(processes=100)
     ris = pool.map(batch_ftp_request, batches)
+
     # write the output (TODO: turn into logging behaviour)
     print("\n\n*************************\n\n")
     print("Script Run")
