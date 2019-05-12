@@ -3,7 +3,7 @@
 * Collapsing Time Dimensions
 * Collapsing Spatial Dimensions
 * Binning your datasets
-* Working with masks
+* Working with masks & subsets
 * Lookup values from xarray in a dict
 * Extracting individual pixels
 * I/O
@@ -38,6 +38,10 @@ def rename_lat_lon(ds):
     """ rename longitude=>lon, latitude=>lat """
     return ds.rename({"longitude": "lon", "latitude": "lat"})
 
+
+def ls(dir):
+    """ list the contents of a directory (like ls in bash) """
+    return [f for f in dir.iterdir()]
 
 # ------------------------------------------------------------------------------
 # Collapsing Time Dimensions
@@ -271,8 +275,69 @@ def bin_dataset(ds, group_var, n_bins):
 
 
 # ------------------------------------------------------------------------------
-# Working with masks
+# Working with masks & subsets
 # ------------------------------------------------------------------------------
+
+def merge_shapefiles(wsheds_shp, pp_to_polyid_map):
+    """ Merge Shapefiles into ONE
+    Example:
+    -------
+    you have two basin polygons for two different pour points
+    and you want to merge them into one polygon.
+
+    Notes:
+    -----
+    Make a union of polygons in Python, GeoPandas, or shapely (into a single geometry)
+    https://stackoverflow.com/a/40386377/9940782
+    unary_union or #geo_df.loc[pp_to_polyid_map[geoid]].dissolve('geometry')
+    https://stackoverflow.com/a/40386377/9940782
+    """
+    out_shp_geoms=[]
+    for geoid in pp_to_polyid_map.keys():
+        geoms = wsheds_shp.loc[pp_to_polyid_map[geoid]].geometry
+
+        out_shp_geoms.append(shapely.ops.unary_union(geoms))
+
+    # OUTPUT into one dataframe
+    gdf = gpd.GeoDataFrame(
+        {
+            "geoid":[geoid for geoid in pp_to_polyid_map.keys()],
+            "number":np.arange(0,7),
+            "geometry":out_shp_geoms
+        },
+        geometry='geometry'
+    )
+
+    return gdf
+
+
+
+def select_bounding_box_xarray(ds, region):
+    """ using the Region namedtuple defined in engineering.regions.py select
+    the subset of the dataset that you have defined that region for.
+
+    Arguments:
+    ---------
+    : ds (xr.Dataset)
+        the data (usually from netcdf file) that you want to subset a bounding
+         box from
+    : region (Region)
+        namedtuple object defined in engineering/regions.py
+
+    Returns:
+    -------
+    : ds (xr.DataSet)
+        Dataset with a subset of the whol region defined by the Region object
+    """
+    print(f"selecting region: {region.name} from ds")
+    assert isinstance(ds, xr.Dataset) or isinstance(ds, xr.DataArray), f"ds Must be an xarray object! currently: {type(ds)}"
+    lonmin = region.lonmin
+    lonmax = region.lonmax
+    latmin = region.latmin
+    latmax = region.latmax
+    return ds.sel(lat=slice(latmin, latmax), lon=slice(lonmin, lonmax))
+
+
 
 def get_unmasked_data(dataArray, dataMask):
     """ get the data INSIDE the dataMask

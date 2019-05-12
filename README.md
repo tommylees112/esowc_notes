@@ -1,2 +1,2 @@
-# ESoWC_dummy
-Exploratory Notebooks for ESoWC [Private]
+# esowc_note
+Exploratory Notebooks for ESoWC 

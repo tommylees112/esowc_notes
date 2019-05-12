@@ -11,6 +11,12 @@ data/*.zip*
 
 __pycache__
 *.pyc
+*.zip
 
 data/vhi*
 data/esa*
+
+example_scripts/parallel_python/copy_to_server.sh
+example_scripts/parallel_python/
+docs/presentations
+
