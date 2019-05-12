@@ -78,5 +78,22 @@ def main():
     print("\nError: ",[ri for ri in ris if ri != None])
 
 
+def test():
+    """ run for a single file """
+    # get the filenames
+    vhi_files = get_ftp_filenames()[:1]
+    batches = [batch for batch in chunks(vhi_files,100)][0]
+    pool = multiprocessing.Pool(processes=100)
+
+    # pool.map(add_coordinates, nc_files)
+    ris = pool.map(batch_ftp_request, batches)
+    # write the output (TODO: turn into logging behaviour)
+    print("\n\n*************************\n\n")
+    print("Script Run")
+    print("*************************")
+    print("Errors:")
+    print("\nError: ",[ri for ri in ris if ri != None])
+
 if __name__ == "__main__":
-    main()
+    # main()
+    test()
