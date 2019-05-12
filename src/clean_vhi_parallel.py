@@ -22,7 +22,7 @@ def add_coordinates(netcdf_filepath):
 
 if __name__ == "__main__":
 
-  nc_files = glob.glob(IN_FILE_DIR+"*VH.nc")
+  nc_files = glob.glob(IN_FILE_DIR+"*VH.nc")[:5]
   os.system(f"mkdir -p {OUT_FILE_DIR}")
   assert os.path.isdir(OUT_FILE_DIR), f"The output file {out_file_dir} does not exist!"
 
