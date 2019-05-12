@@ -3,6 +3,7 @@ import os
 import multiprocessing
 import sys
 from pathlib import Path
+import pathlib
 
 if os.getcwd().split('/')[-2] == "eswoc_notes":
     sys.path.append('..')
