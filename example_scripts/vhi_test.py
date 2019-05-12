@@ -14,6 +14,9 @@ data_dir = Path("/soge-home/projects/crop_yield/esowc_notes/data/vhi/ftp.star.ne
 
 netcdf_filepaths = [f for f in data_dir.glob('*.nc')]
 netcdf_filepath = netcdf_filepaths[0]
+output_dir = "/soge-home/projects/crop_yield/ESoWC_dummy/data/vhi_chop"
+output_dir = "/scratch/chri4118/vhi_chop"
+
 
 ds = xr.open_dataset(netcdf_filepath)
 timestamp = extract_timestamp(ds, netcdf_filepath.as_posix(), use_filepath=True)
@@ -30,3 +33,7 @@ kenya_region = Region(
 # TODO: why does this not work with lat/lon but not latitude/longitude
 # new_ds_ = new_ds.copy().rename({'latitude':'lat','longitude':'lon'})
 kenya_ds = select_bounding_box_xarray(new_ds, kenya_region)
+
+filename = create_filename(timestamp, netcdf_filepath.as_posix(), subset=True, subset_name="kenya")
+print(f"Saving to {output_dir}/{filename}")
+new_ds.to_netcdf(f"{output_dir}/{filename}")
