@@ -229,7 +229,7 @@ def preprocess_VHI_data(netcdf_filepath, output_dir):
     filename = create_filename(timestamp, netcdf_filepath, subset=True, subset_name="kenya")
     print(f"Saving to {output_dir}/{filename}")
     # TODO: change to pathlib.Path objects
-    new_ds.to_netcdf(f"{output_dir}/{filename}")
+    kenya_ds.to_netcdf(f"{output_dir}/{filename}")
 
     print(f"** Done for VHI {netcdf_filepath.split('/')[-1]} **")
     return
