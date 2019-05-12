@@ -1,5 +1,7 @@
+import os
 import sys
-sys.path.append('..')
+if os.getcwd().split('/')[-2] == "eswoc_notes":
+    sys.path.append('..')
 
 
 from src.api_helpers import Region
