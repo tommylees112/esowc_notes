@@ -1,3 +1,7 @@
+import sys
+sys.path.append('..')
+
+
 from src.api_helpers import Region
 import src.clean_vhi_data
 from pathlib import Path
