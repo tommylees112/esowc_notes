@@ -36,4 +36,4 @@ kenya_ds = select_bounding_box_xarray(new_ds, kenya_region)
 
 filename = create_filename(timestamp, netcdf_filepath.as_posix(), subset=True, subset_name="kenya")
 print(f"Saving to {output_dir}/{filename}")
-new_ds.to_netcdf(f"{output_dir}/{filename}")
+kenya_ds.to_netcdf(f"{output_dir}/{filename}")

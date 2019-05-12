@@ -2,6 +2,7 @@ import glob
 import os
 import multiprocessing
 import sys
+import pathlib
 
 if os.getcwd().split('/')[-2] == "eswoc_notes":
     sys.path.append('..')
@@ -12,12 +13,16 @@ IN_FILE_DIR="/soge-home/projects/crop_yield/ESoWC_dummy/data/vhi/ftp.star.nesdis
 # OUT_FILE_DIR="/soge-home/projects/crop_yield/ESoWC_dummy/data/vhi/clean2"
 OUT_FILE_DIR="/scratch/chri4118/vhi_chop"
 
+
 def add_coordinates(netcdf_filepath):
     """ function to be run in parallel & safely catch errors
 
     https://stackoverflow.com/a/24683990/9940782
     """
     print(f"Starting work on {netcdf_filepath}")
+    if isinstance(netcdf_filepath, pathlib.PosixPath):
+        netcdf_filepath = netcdf_filepath.as_posix()
+        
     try:
         return preprocess_VHI_data(netcdf_filepath, OUT_FILE_DIR)
     except Exception as e:
@@ -33,7 +38,6 @@ if __name__ == "__main__":
   assert os.path.isdir(OUT_FILE_DIR), f"The output file {OUT_FILE_DIR} does not exist!"
 
   pool = multiprocessing.Pool(processes=100)
-  print(pool)
   pool.map(add_coordinates, nc_files)
   # ris = pool.map(add_coordinates, nc_files)
   # pool.close()
