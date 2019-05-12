@@ -30,29 +30,24 @@ def add_coordinates(netcdf_filepath):
         return e, netcdf_filepath
 
 
+def main():
+    print(f"Writing data to: {OUT_FILE_DIR}")
+    nc_files = glob.glob(IN_FILE_DIR+"*VH.nc")[:5]
+
+    os.system(f"mkdir -p {OUT_FILE_DIR}")
+    assert os.path.isdir(OUT_FILE_DIR), f"The output file {OUT_FILE_DIR} does not exist!"
+
+    pool = multiprocessing.Pool(processes=100)
+    # pool.map(add_coordinates, nc_files)
+    ris = pool.map(add_coordinates, nc_files)
+
+    print("\n\n*************************\n\n")
+    print("Script Run")
+    print("*************************")
+    print("Errors:")
+    print("\nError: ",[ri for ri in ris if ri != None])
+
+
 if __name__ == "__main__":
-
-  print(f"Writing data to: {OUT_FILE_DIR}")
-  nc_files = glob.glob(IN_FILE_DIR+"*VH.nc")[:5]
-
-  os.system(f"mkdir -p {OUT_FILE_DIR}")
-  assert os.path.isdir(OUT_FILE_DIR), f"The output file {OUT_FILE_DIR} does not exist!"
-
-  pool = multiprocessing.Pool(processes=100)
-  # pool.map(add_coordinates, nc_files)
-  ris = pool.map(add_coordinates, nc_files)
-
-  print("\n\n*************************\n\n")
-  print("Script Run")
-  print("*************************")
-  print("Errors:")
-  print("\nError: ",[ri for ri in ris if ri != None])
-  # pool.close()
-  # pool.join()
-  #
-  # # print the errors
-  # print("\n\n*************************\n\n")
-  # print("Script Run")
-  # print("\n\n*************************\n\n")
-  # print("Errors")
-  # [print(f"\n{result}") for result in ris]
+    main()
+  
