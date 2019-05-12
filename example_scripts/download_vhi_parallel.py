@@ -1,7 +1,7 @@
 from ftplib import FTP
 from pathlib import Path
 import multiprocessing
-
+import ipdb
 
 OUTPUT_DIR = Path(f'/soge-home/projects/crop_yield/esowc_notes/data/vhi2')
 
@@ -67,7 +67,6 @@ def main():
 
     # run in parallel for multiple file downloads
     pool = multiprocessing.Pool(processes=100)
-    # pool.map(add_coordinates, nc_files)
     ris = pool.map(batch_ftp_request, batches)
 
     # write the output (TODO: turn into logging behaviour)
@@ -85,7 +84,7 @@ def test():
     batches = [batch for batch in chunks(vhi_files,100)][0]
     pool = multiprocessing.Pool(processes=100)
 
-    # pool.map(add_coordinates, nc_files)
+    ipdb.set_trace()
     ris = pool.map(batch_ftp_request, batches)
     # write the output (TODO: turn into logging behaviour)
     print("\n\n*************************\n\n")
