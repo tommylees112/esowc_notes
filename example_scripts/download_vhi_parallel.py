@@ -115,7 +115,7 @@ def test(parallel=True):
         ftp.cwd('/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/')
         # download the file individually
         print("Downloading file individually")
-        filename = batches[0]
+        filename = [batches[0]]
         output_filename = OUTPUT_DIR / filename
         download_file_from_ftp(ftp, filename, output_filename)
         ftp.quit()
