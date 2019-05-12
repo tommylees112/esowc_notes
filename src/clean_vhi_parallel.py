@@ -7,7 +7,6 @@ IN_FILE_DIR="/soge-home/projects/crop_yield/ESoWC_dummy/data/vhi/ftp.star.nesdis
 # OUT_FILE_DIR="/soge-home/projects/crop_yield/ESoWC_dummy/data/vhi/clean2"
 OUT_FILE_DIR="/scratch/chri4118/vhi_chop"
 
-
 def add_coordinates(netcdf_filepath):
     """ function to be run in parallel & safely catch errors
 
@@ -22,6 +21,7 @@ def add_coordinates(netcdf_filepath):
 
 if __name__ == "__main__":
 
+  print(f"Writing data to: {OUT_FILE_DIR}")
   nc_files = glob.glob(IN_FILE_DIR+"*VH.nc")[:5]
   os.system(f"mkdir -p {OUT_FILE_DIR}")
   assert os.path.isdir(OUT_FILE_DIR), f"The output file {out_file_dir} does not exist!"
