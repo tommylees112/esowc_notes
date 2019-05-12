@@ -33,7 +33,7 @@ def add_coordinates(netcdf_filepath):
 
 def main():
     print(f"Writing data to: {OUT_FILE_DIR}")
-    nc_files = [f.as_posix() for f in IN_FILE_DIR.glob('*VH.nc')][:5]
+    nc_files = [f.as_posix() for f in IN_FILE_DIR.glob('*VH.nc')]
 
     os.system(f"mkdir -p {OUT_FILE_DIR}")
     assert os.path.isdir(OUT_FILE_DIR), f"The output file {OUT_FILE_DIR} does not exist!"
