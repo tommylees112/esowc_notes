@@ -1,6 +1,10 @@
 import glob
 import os
 import multiprocessing
+import sys
+
+if os.getcwd().split('/')[-2] == "eswoc_notes":
+    sys.path.append('..')
 from src.clean_vhi_data import preprocess_VHI_data
 
 IN_FILE_DIR="/soge-home/projects/crop_yield/ESoWC_dummy/data/vhi/ftp.star.nesdis.noaa.gov/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/"
