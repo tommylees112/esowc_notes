@@ -12,6 +12,7 @@ def add_coordinates(netcdf_filepath):
 
     https://stackoverflow.com/a/24683990/9940782
     """
+    print(f"Starting work on {netcdf_filepath}")
     try:
         return preprocess_VHI_data(netcdf_filepath, OUT_FILE_DIR)
     except Exception as e:
@@ -27,14 +28,14 @@ if __name__ == "__main__":
   assert os.path.isdir(OUT_FILE_DIR), f"The output file {out_file_dir} does not exist!"
 
   pool = multiprocessing.Pool(processes=100)
-  # ris = pool.map(add_coordinates, nc_files)
   pool.map(add_coordinates, nc_files)
+  # ris = pool.map(add_coordinates, nc_files)
   # pool.close()
   # pool.join()
   #
   # # print the errors
-  print("\n\n*************************\n\n")
-  print("Script Run")
+  # print("\n\n*************************\n\n")
+  # print("Script Run")
   # print("\n\n*************************\n\n")
   # print("Errors")
   # [print(f"\n{result}") for result in ris]
