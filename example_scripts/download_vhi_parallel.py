@@ -90,36 +90,37 @@ def main():
     print("\nError: ",[ri for ri in ris if ri != None])
 
 
-def test():
+def test(parallel=True):
     """ run for a single file """
     # get the filenames
     vhi_files = get_ftp_filenames()[:1]
     batches = [batch for batch in chunks(vhi_files,100)][0]
 
-    # initialise ftp connection
-    ftp = FTP('ftp.star.nesdis.noaa.gov')
-    ftp.login()
-    ftp.cwd('/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/')
 
-    # download the file individually
-    print("Downloading file individually")
-    filename = batches[0]
-    output_filename = OUTPUT_DIR / filename
-    download_file_from_ftp(ftp, filename, output_filename)
+    if parallel:
+        print("Downloading file in `parallel`")
+        pool = multiprocessing.Pool(processes=100)
+        ris = pool.map(batch_ftp_request, batches)
 
-    ipdb.set_trace()
-    ftp.quit()
-
-    print("Downloading file in `parallel`")
-    pool = multiprocessing.Pool(processes=100)
-    ris = pool.map(batch_ftp_request, batches)
-
-    # write the output (TODO: turn into logging behaviour)
-    print("\n\n*************************\n\n")
-    print("Script Run")
-    print("*************************")
-    print("Errors:")
-    print("\nError: ",[ri for ri in ris if ri != None])
+        # write the output (TODO: turn into logging behaviour)
+        print("\n\n*************************\n\n")
+        print("Script Run")
+        print("*************************")
+        print("Errors:")
+        print("\nError: ",[ri for ri in ris if ri != None])
+    else:
+        # initialise ftp connection
+        ftp = FTP('ftp.star.nesdis.noaa.gov')
+        ftp.login()
+        ftp.cwd('/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/')
+        # download the file individually
+        print("Downloading file individually")
+        filename = batches[0]
+        output_filename = OUTPUT_DIR / filename
+        download_file_from_ftp(ftp, filename, output_filename)
+        ftp.quit()
+        # ipdb.set_trace()
+    return
 
 if __name__ == "__main__":
     # main()
