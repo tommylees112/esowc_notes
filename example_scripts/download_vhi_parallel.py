@@ -49,6 +49,7 @@ def batch_ftp_request(filenames, output_dir=OUTPUT_DIR):
 
     return
 
+
 def each_file_individually(filenames, output_dir=OUTPUT_DIR):
     """ individual context for each file (will that overload that poor server?)"""
     assert False, "Is this irresponsible?"
@@ -59,6 +60,7 @@ def each_file_individually(filenames, output_dir=OUTPUT_DIR):
             output_filename = output_dir / filename
             download_file_from_ftp(ftp, filename, output_filename)
     return
+
 
 
 def chunks(l, n):
@@ -100,7 +102,8 @@ def test(parallel=True):
     if parallel:
         print("Downloading file in `parallel`")
         pool = multiprocessing.Pool(processes=100)
-        ris = pool.map(batch_ftp_request, batches)
+        # ris = pool.map(batch_ftp_request, batches)
+        ris = pool.apply_async(batch_ftp_request,args=(batches,))
 
         # write the output (TODO: turn into logging behaviour)
         print("\n\n*************************\n\n")
@@ -115,7 +118,7 @@ def test(parallel=True):
         ftp.cwd('/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/')
         # download the file individually
         print("Downloading file individually")
-        filename = [batches[0]]
+        filename = batches[0]
         output_filename = OUTPUT_DIR / filename
         download_file_from_ftp(ftp, filename, output_filename)
         ftp.quit()
