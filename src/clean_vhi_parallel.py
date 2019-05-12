@@ -33,6 +33,7 @@ if __name__ == "__main__":
   assert os.path.isdir(OUT_FILE_DIR), f"The output file {OUT_FILE_DIR} does not exist!"
 
   pool = multiprocessing.Pool(processes=100)
+  print(pool)
   pool.map(add_coordinates, nc_files)
   # ris = pool.map(add_coordinates, nc_files)
   # pool.close()
