@@ -17,7 +17,18 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from pprint import pprint
+import os
 
+if os.getcwd().split('/')[-2] == "eswoc_notes":
+    sys.path.append('..')
+# TODO: need to use the already specified functions in src.
+# assert False, f"Need to add `eswoc_notes` to current path - current path: {os.getcwd()}"
+# TODO: current hack hardcoding the path to get it to work
+sys.path.append('/soge-home/projects/crop_yield/esowc_notes')
+
+# for subsetting kenya
+from src.eng_utils import select_bounding_box_xarray
+from src.api_helpers import Region
 # ------------------------------------------------------------------------------
 # 1. assign time stamp
 # ------------------------------------------------------------------------------
@@ -129,7 +140,7 @@ def create_new_dataset(ds, longitudes, latitudes, timestamp, all_vars=False):
 # 1. Save the output file to new folder
 # ------------------------------------------------------------------------------
 
-def create_filename(t, netcdf_filepath):
+def create_filename(t, netcdf_filepath, subset=False, subset_name=None)):
     """ create a sensible output filename (HARDCODED for this problem)
     Arguments:
     ---------
@@ -142,7 +153,11 @@ def create_filename(t, netcdf_filepath):
     VHP.G04.C07.NJ.P1996027.VH.nc
     """
     substr = netcdf_filepath.split('/')[-1].split('.P')[0]
-    new_filename = f"STAR_{substr}_{t.year}_{t.month}_{t.day}_VH.nc"
+    if subset:
+        assert subset_name!=None, "If you have set subset=True then you need to assign a subset name"
+        new_filename = f"STAR_{substr}_{t.year}_{t.month}_{t.day}_kenya_VH.nc"
+    else:
+        new_filename = f"STAR_{substr}_{t.year}_{t.month}_{t.day}_VH.nc"
     return new_filename
 
 
@@ -167,8 +182,17 @@ def create_filename(t, netcdf_filepath):
 # )
 #
 # from src.eng_utils import select_bounding_box_xarray
-#
-# select_bounding_box_xarray(new_ds, ea_region)
+
+def select_kenya_region(ds):
+    """ simple helper function to return a subset xarray object for Kenya"""
+    kenya_region = Region(
+        name='kenya',
+        lonmin=33.501,
+        lonmax=42.283,
+        latmin=-5.202,
+        latmax=6.002,
+    )
+    return select_bounding_box_xarray(ds, kenya_region)
 
 
 # ------------------------------------------------------------------------------
@@ -198,9 +222,10 @@ def preprocess_VHI_data(netcdf_filepath, output_dir):
     new_ds = create_new_dataset(ds, longitudes, latitudes, timestamp)
 
     # 5. chop out EastAfrica
+    kenya_ds = select_kenya_region(new_ds)
 
     # 5. create the filepath and save to that location
-    filename = create_filename(timestamp, netcdf_filepath)
+    filename = create_filename(timestamp, netcdf_filepath, subset=True, subset_name="kenya")
     print(f"Saving to {output_dir}/{filename}")
     # TODO: change to pathlib.Path objects
     new_ds.to_netcdf(f"{output_dir}/{filename}")
