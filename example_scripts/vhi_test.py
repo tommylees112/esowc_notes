@@ -17,6 +17,7 @@ netcdf_filepath = netcdf_filepaths[0]
 
 ds = xr.open_dataset(netcdf_filepath)
 timestamp = extract_timestamp(ds, netcdf_filepath.as_posix(), use_filepath=True)
+longitudes, latitudes = create_lat_lon_vectors(ds)
 new_ds = create_new_dataset(ds, longitudes, latitudes, timestamp)
 
 kenya_region = Region(
