@@ -1,7 +1,7 @@
 from ftplib import FTP
 from pathlib import Path
 
-OUTPUT_DIR = Path(f'/Users/tommylees/Downloads')
+OUTPUT_DIR = Path(f'/soge-home/projects/crop_yield/esowc_notes/data/vhi2')
 
 def get_ftp_filenames():
     """  get the filenames of interest """
@@ -61,7 +61,7 @@ def main():
     vhi_files = get_ftp_filenames()
 
     # split the filenames into batches of 100 (21 batches)?
-    batches = [batch for batch in chunks(vhi_files,100)]
+    batches = [batch for batch in chunks(vhi_files,100)][0]
 
     # run in parallel for multiple file downloads
     pool = multiprocessing.Pool(processes=100)
