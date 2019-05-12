@@ -28,7 +28,7 @@ def download_file_from_ftp(ftp_instance, filename, output_filename):
     """
     print(f"Downloading {output_filename}")
     with open(output_filename,'wb') as lf:
-        ftp.retrbinary("RETR " + filename, lf.write)
+        ftp_instance.retrbinary("RETR " + filename, lf.write)
     if output_filename.exists():
         print(f"Successful Download! {output_filename}")
     else:
@@ -47,6 +47,15 @@ def batch_ftp_request(filenames, output_dir=OUTPUT_DIR):
             output_filename = output_dir / filename
             download_file_from_ftp(ftp, filename, output_filename)
 
+    return
+
+def each_file_individually(filenames, output_dir=OUTPUT_DIR):
+    """ individual context for each file (will that overload that poor server?)"""
+    with FTP('ftp.star.nesdis.noaa.gov') as ftp:
+        ftp.login()
+        ftp.cwd('/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/')
+
+    return
 
 def chunks(l, n):
     """ return a generator object which chunks list into sublists of size n
