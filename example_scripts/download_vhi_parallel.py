@@ -78,7 +78,7 @@ def main():
     vhi_files = get_ftp_filenames()
 
     # split the filenames into batches of 100 (21 batches)?
-    batches = [batch for batch in chunks(vhi_files,100)][0]
+    batches = [batch for batch in chunks(vhi_files,100)]
 
     # run in parallel for multiple file downloads
     pool = multiprocessing.Pool(processes=100)
@@ -100,6 +100,7 @@ def test(parallel=True):
 
 
     if parallel:
+        # https://stackoverflow.com/a/8805244/9940782
         print("Downloading file in `parallel`")
         pool = multiprocessing.Pool(processes=100)
         ipdb.set_trace()
