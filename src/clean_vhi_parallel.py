@@ -22,7 +22,7 @@ def add_coordinates(netcdf_filepath):
     print(f"Starting work on {netcdf_filepath}")
     if isinstance(netcdf_filepath, pathlib.PosixPath):
         netcdf_filepath = netcdf_filepath.as_posix()
-        
+
     try:
         return preprocess_VHI_data(netcdf_filepath, OUT_FILE_DIR)
     except Exception as e:
@@ -34,12 +34,19 @@ if __name__ == "__main__":
 
   print(f"Writing data to: {OUT_FILE_DIR}")
   nc_files = glob.glob(IN_FILE_DIR+"*VH.nc")[:5]
+  
   os.system(f"mkdir -p {OUT_FILE_DIR}")
   assert os.path.isdir(OUT_FILE_DIR), f"The output file {OUT_FILE_DIR} does not exist!"
 
   pool = multiprocessing.Pool(processes=100)
-  pool.map(add_coordinates, nc_files)
-  # ris = pool.map(add_coordinates, nc_files)
+  # pool.map(add_coordinates, nc_files)
+  ris = pool.map(add_coordinates, nc_files)
+
+  print("\n\n*************************\n\n")
+  print("Script Run")
+  print("*************************")
+  print("Errors:")
+  print("\nError: ",[ri for ri in ris if ri != None])
   # pool.close()
   # pool.join()
   #

@@ -12,7 +12,7 @@ import numpy as np
 
 data_dir = Path("/soge-home/projects/crop_yield/esowc_notes/data/vhi/ftp.star.nesdis.noaa.gov/pub/corp/scsb/wguo/data/Blended_VH_4km/VH")
 
-netcdf_filepaths = [f for f in data_dir.glob('*.nc')]
+netcdf_filepaths = [f for f in data_dir.glob('*VH.nc')]
 netcdf_filepath = netcdf_filepaths[0]
 output_dir = "/soge-home/projects/crop_yield/ESoWC_dummy/data/vhi_chop"
 output_dir = "/scratch/chri4118/vhi_chop"
