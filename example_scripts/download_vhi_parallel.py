@@ -1,5 +1,7 @@
 from ftplib import FTP
 from pathlib import Path
+import multiprocessing
+
 
 OUTPUT_DIR = Path(f'/soge-home/projects/crop_yield/esowc_notes/data/vhi2')
 
