@@ -102,6 +102,7 @@ def test(parallel=True):
     if parallel:
         print("Downloading file in `parallel`")
         pool = multiprocessing.Pool(processes=100)
+        ipdb.set_trace()
         # ris = pool.map(batch_ftp_request, batches)
         ris = pool.apply_async(batch_ftp_request,args=(batches,))
 
