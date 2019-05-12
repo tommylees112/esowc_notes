@@ -65,9 +65,9 @@ def create_lat_lon_vectors(ds):
     # lonmin = ds.attrs['START_LONGITUDE_RANGE']
     # latmin = ds.attrs['END_LATITUDE_RANGE']
     # latmax = ds.attrs['START_LATITUDE_RANGE']
-    lonmax = -55.152
+    lonmax = 180
     lonmin = -180.0
-    latmin = 180.0
+    latmin = -55.152
     latmax = 75.024
     # print(f"lonmax:{lonmax} lonmin:{lonmin} latmin:{latmin} latmax:{latmax}")
 
@@ -106,14 +106,18 @@ def create_new_dataarray(ds, variable, longitudes, latitudes, timestamp):
     return da
 
 
-def create_new_dataset(ds, longitudes, latitudes, timestamp):
+def create_new_dataset(ds, longitudes, latitudes, timestamp, all_vars=False):
     """ Create a new dataset from ALL the variables in `ds` with the dims"""
     # initialise the list
     da_list = []
 
     # for each variable create a new data array and append to list
-    for variable in [v for v in ds.variables.keys()]:
-        da_list.append( create_new_dataarray(ds, variable, longitudes, latitudes, timestamp))
+    if all_vars:
+        for variable in [v for v in ds.variables.keys()]:
+            da_list.append( create_new_dataarray(ds, variable, longitudes, latitudes, timestamp))
+    else:
+        # only export the VHI data
+        da_list.append(create_new_dataarray(ds, "VHI", longitudes, latitudes, timestamp))
 
     # merge all of the variables into one dataset
     new_ds = xr.merge(da_list)
@@ -146,15 +150,25 @@ def create_filename(t, netcdf_filepath):
 # 1. Chop out East Africa
 # ------------------------------------------------------------------------------
 # from src.api_helpers import Region
-
-kenya_region = Region(
-    name='kenya',
-    lonmin=33.501,
-    lonmax=42.283,
-    latmin=-5.202,
-    latmax=6.002,
-)
-
+#
+# # kenya_region = Region(
+# #     name='kenya',
+# #     lonmin=33.501,
+# #     lonmax=42.283,
+# #     latmin=-5.202,
+# #     latmax=6.002,
+# # )
+# ea_region = Region(
+#     name='ea_region',
+#     lonmin=21,
+#     lonmax=51.8,
+#     latmin=-11,
+#     latmax=23,
+# )
+#
+# from src.eng_utils import select_bounding_box_xarray
+#
+# select_bounding_box_xarray(new_ds, ea_region)
 
 
 # ------------------------------------------------------------------------------

@@ -4,7 +4,7 @@ import multiprocessing
 from clean_vhi_data import preprocess_VHI_data
 
 IN_FILE_DIR="/soge-home/projects/crop_yield/ESoWC_dummy/data/vhi/ftp.star.nesdis.noaa.gov/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/"
-OUT_FILE_DIR="/soge-home/projects/crop_yield/ESoWC_dummy/data/vhi/clean"
+OUT_FILE_DIR="/soge-home/projects/crop_yield/ESoWC_dummy/data/vhi/clean2"
 
 
 def add_coordinates(netcdf_filepath):
@@ -15,6 +15,7 @@ def add_coordinates(netcdf_filepath):
     try:
         return preprocess_VHI_data(netcdf_filepath, OUT_FILE_DIR)
     except Exception as e:
+        print(f"### FAILED: {netcdf_filepath}")
         return e, netcdf_filepath
 
 
