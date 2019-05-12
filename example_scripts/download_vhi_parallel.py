@@ -45,7 +45,7 @@ def batch_ftp_request(filenames, output_dir=OUTPUT_DIR):
 
         for filename in filenames:
             output_filename = output_dir / filename
-            download_file_from_ftp(ftp_instance, filename, output_filename)
+            download_file_from_ftp(ftp, filename, output_filename)
 
 
 def chunks(l, n):
