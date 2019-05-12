@@ -18,6 +18,7 @@ import numpy as np
 from pathlib import Path
 from pprint import pprint
 import os
+import sys
 
 if os.getcwd().split('/')[-2] == "eswoc_notes":
     sys.path.append('..')
