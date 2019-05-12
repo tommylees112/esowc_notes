@@ -27,13 +27,14 @@ if __name__ == "__main__":
   assert os.path.isdir(OUT_FILE_DIR), f"The output file {out_file_dir} does not exist!"
 
   pool = multiprocessing.Pool(processes=100)
-  ris = pool.map(add_coordinates, nc_files)
-  pool.close()
-  pool.join()
-
-  # print the errors
+  # ris = pool.map(add_coordinates, nc_files)
+  pool.map(add_coordinates, nc_files)
+  # pool.close()
+  # pool.join()
+  #
+  # # print the errors
   print("\n\n*************************\n\n")
   print("Script Run")
-  print("\n\n*************************\n\n")
-  print("Errors")
-  [print(f"\n{result}") for result in ris]
+  # print("\n\n*************************\n\n")
+  # print("Errors")
+  # [print(f"\n{result}") for result in ris]
