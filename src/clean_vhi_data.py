@@ -140,7 +140,7 @@ def create_new_dataset(ds, longitudes, latitudes, timestamp, all_vars=False):
 # 1. Save the output file to new folder
 # ------------------------------------------------------------------------------
 
-def create_filename(t, netcdf_filepath, subset=False, subset_name=None)):
+def create_filename(t, netcdf_filepath, subset=False, subset_name=None):
     """ create a sensible output filename (HARDCODED for this problem)
     Arguments:
     ---------
