@@ -259,7 +259,7 @@ def add_coordinates_to_multiple_files(netcdf_filepaths, out_file_dir):
         try:
             preprocess_VHI_data(netcdf_filepath, out_file_dir)
         except Exception as e:
-            print(f"### FAILED: {netcdf_filepath}")
+            print(f"### FAILED: {netcdf_filepath}\n\t\tError: {e})
     return
 
 # ------------------------------------------------------------------------------
