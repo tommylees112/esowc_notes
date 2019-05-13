@@ -128,5 +128,5 @@ def test(parallel=True):
     return
 
 if __name__ == "__main__":
-    # main()
-    test()
+    main()
+    # test()

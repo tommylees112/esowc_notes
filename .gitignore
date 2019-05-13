@@ -18,3 +18,4 @@ example_scripts/parallel_python/
 docs/presentations
 
 copy_to_server.sh
+*.out
