@@ -1,9 +1,18 @@
+"""
+# NOTE: this file has to be run with ipython
+
+ipython download_vhi_parallel
+
+TODO: add the output_dir as an argument
+"""
 from ftplib import FTP
 from pathlib import Path
 import multiprocessing
+from functools import partial
+import click
 import ipdb
 
-# to pickle more than multiprocessing can
+# to pickle more objects than multiprocessing can
 # https://stackoverflow.com/a/21345423/9940782
 from pathos.multiprocessing import ProcessingPool as Pool
 
@@ -11,8 +20,7 @@ OUTPUT_DIR = Path(f'/soge-home/projects/crop_yield/esowc_notes/data/vhi2')
 
 def get_ftp_filenames():
     """  get the filenames of interest """
-    import ftplib
-    with ftplib.FTP('ftp.star.nesdis.noaa.gov') as ftp:
+    with FTP('ftp.star.nesdis.noaa.gov') as ftp:
         ftp.login()
         ftp.cwd('/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/')
 
@@ -42,7 +50,7 @@ def download_file_from_ftp(ftp_instance, filename, output_filename):
     return
 
 
-def batch_ftp_request(filenames, output_dir=OUTPUT_DIR):
+def batch_ftp_request(output_dir, filenames):
     """ This has the context manager to avoid overloading ftp server """
     with FTP('ftp.star.nesdis.noaa.gov') as ftp:
         ftp.login()
@@ -78,7 +86,9 @@ def chunks(l, n):
         yield l[i:i+n]
 
 
-def main(pool):
+@click.command()
+@click.option('--output_dir', default=Path(f'/soge-home/projects/crop_yield/esowc_notes/data/vhi2'), help="The Output directory you want to save the data to")
+def main(pool, output_dir):
     # get the filenames
     vhi_files = get_ftp_filenames()
 
@@ -109,7 +119,7 @@ def test(parallel=True, pool=None):
         # https://stackoverflow.com/a/8805244/9940782
         print("Downloading file in `parallel`")
         # pool = multiprocessing.Pool(processes=100)
-        ris = pool.map(batch_ftp_request, batches)
+        ris = pool.map(partial(batch_ftp_request, output_dir=output_dir), batches)
         # ris = pool.apply_async(batch_ftp_request,args=(batches,))
 
         # write the output (TODO: turn into logging behaviour)
