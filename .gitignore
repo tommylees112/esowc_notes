@@ -26,3 +26,4 @@ copy_to_server.sh
 data/esa_cci_veg
 data/vhi
 
+*.pkl
