@@ -2,6 +2,9 @@
 # from command line
 >>> python src/clean_vhi_parallel.py
 
+# TODO
+- for the filepaths that fail run them again, not in parallel but sequentially
+- 
 """
 
 import glob
