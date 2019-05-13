@@ -10,8 +10,6 @@ from pathlib import Path
 import multiprocessing
 import ipdb
 
-from functools import partial
-
 # to pickle more than multiprocessing can
 # https://stackoverflow.com/a/21345423/9940782
 from pathos.multiprocessing import ProcessingPool as Pool
@@ -50,7 +48,7 @@ def download_file_from_ftp(ftp_instance, filename, output_filename):
     return
 
 
-def batch_ftp_request(output_dir, filenames):
+def batch_ftp_request(filenames, output_dir=OUTPUT_DIR):
     """ This has the context manager to avoid overloading ftp server """
     with FTP('ftp.star.nesdis.noaa.gov') as ftp:
         ftp.login()
@@ -86,7 +84,7 @@ def chunks(l, n):
         yield l[i:i+n]
 
 
-def main(pool, output_dir=OUTPUT_DIR):
+def main(pool):
     # get the filenames
     vhi_files = get_ftp_filenames()
 
@@ -95,8 +93,7 @@ def main(pool, output_dir=OUTPUT_DIR):
 
     # run in parallel for multiple file downloads
     # pool = multiprocessing.Pool(processes=100)
-    # ris = pool.map(batch_ftp_request, batches)
-    ris = pool.map(partial(batch_ftp_request, output_dir=output_dir), batches)
+    ris = pool.map(batch_ftp_request, batches)
 
     # write the output (TODO: turn into logging behaviour)
     print("\n\n*************************\n\n")
