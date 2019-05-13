@@ -11,7 +11,8 @@ OUTPUT_DIR = Path(f'/soge-home/projects/crop_yield/esowc_notes/data/vhi2')
 
 def get_ftp_filenames():
     """  get the filenames of interest """
-    with FTP('ftp.star.nesdis.noaa.gov') as ftp:
+    import ftplib
+    with ftplib.FTP('ftp.star.nesdis.noaa.gov') as ftp:
         ftp.login()
         ftp.cwd('/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/')
 
