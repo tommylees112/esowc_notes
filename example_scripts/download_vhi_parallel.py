@@ -107,8 +107,7 @@ def test(parallel=True, pool=None):
         assert pool != None, "pool argument must be provided when using parallel"
         # https://stackoverflow.com/a/8805244/9940782
         print("Downloading file in `parallel`")
-        pool = multiprocessing.Pool(processes=100)
-        ipdb.set_trace()
+        # pool = multiprocessing.Pool(processes=100)
         ris = pool.map(batch_ftp_request, batches)
         # ris = pool.apply_async(batch_ftp_request,args=(batches,))
 
