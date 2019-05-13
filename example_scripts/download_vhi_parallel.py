@@ -43,8 +43,7 @@ def get_ftp_filenames():
 
 
 def download_file_from_ftp(ftp_instance, filename, output_filename):
-    """ by having context manager INSIDE function
-    TODO: is this sensible? or have the FTP as an argument to be supplied ?
+    """ download a single file from the `ftp_instance`
     """
     print(f"Downloading {output_filename}")
     with open(output_filename,'wb') as lf:

@@ -7,16 +7,14 @@ create new dataset with these dimensions
 select the region of interest
 Save the output file to new folder
 
-# From the base of the download to the root
-ftp.star.nesdis.noaa.gov/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/
-cd '../'*8
-
 # from ipython
-from pathlib import Path
-from src.clean_vhi_data import add_coordinates_to_multiple_files
-IN_FILE_DIR=Path("/soge-home/projects/crop_yield/esowc_notes/data/vhi2"); OUT_FILE_DIR="/soge-home/projects/crop_yield/esowc_notes/data/vhi2/vhi_chop";
-nc_files = pickle.load(open('vhi_errors.pkl','rb'))
-add_coordinates_to_multiple_files(nc_files, OUT_FILE_DIR)
+>>> from pathlib import Path
+>>> from src.clean_vhi_data import add_coordinates_to_multiple_files
+>>> base_dir = Path("/soge-home/projects/crop_yield/esowc_notes/")
+>>> IN_FILE_DIR= base_dir/ "data" / "vhi2"
+>>> OUT_FILE_DIR = base_dir/ "data" / "vhi_chop"
+>>> nc_files = pickle.load(open('vhi_errors.pkl','rb'))
+>>> add_coordinates_to_multiple_files(nc_files, OUT_FILE_DIR)
 
 """
 
