@@ -18,7 +18,7 @@ import pathlib
 if os.getcwd().split('/')[-2] == "eswoc_notes":
     sys.path.append('..')
 print(os.getcwd())
-from clean_vhi_data import preprocess_VHI_data
+from src.clean_vhi_data import preprocess_VHI_data
 
 # IN_FILE_DIR=Path("/soge-home/projects/crop_yield/esowc_notes/data/vhi/ftp.star.nesdis.noaa.gov/pub/corp/scsb/wguo/data/Blended_VH_4km/VH")
 IN_FILE_DIR=Path("/soge-home/projects/crop_yield/esowc_notes/data/vhi2")
