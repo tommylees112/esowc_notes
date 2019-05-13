@@ -73,7 +73,7 @@ def chunks(l, n):
         yield l[i:i+n]
 
 
-def main():
+def main(pool):
     # get the filenames
     vhi_files = get_ftp_filenames()
 
@@ -81,7 +81,7 @@ def main():
     batches = [batch for batch in chunks(vhi_files,100)]
 
     # run in parallel for multiple file downloads
-    pool = multiprocessing.Pool(processes=100)
+    # pool = multiprocessing.Pool(processes=100)
     ris = pool.map(batch_ftp_request, batches)
 
     # write the output (TODO: turn into logging behaviour)
@@ -104,8 +104,8 @@ def test(parallel=True):
         print("Downloading file in `parallel`")
         pool = multiprocessing.Pool(processes=100)
         ipdb.set_trace()
-        # ris = pool.map(batch_ftp_request, batches)
-        ris = pool.apply_async(batch_ftp_request,args=(batches,))
+        ris = pool.map(batch_ftp_request, batches)
+        # ris = pool.apply_async(batch_ftp_request,args=(batches,))
 
         # write the output (TODO: turn into logging behaviour)
         print("\n\n*************************\n\n")
@@ -128,5 +128,6 @@ def test(parallel=True):
     return
 
 if __name__ == "__main__":
-    main()
+    pool = multiprocessing.Pool(processes=100)
+    main(pool)
     # test()
