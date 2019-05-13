@@ -15,7 +15,7 @@ cd '../'*8
 from pathlib import Path
 from src.clean_vhi_data import add_coordinates_to_multiple_files
 IN_FILE_DIR=Path("/soge-home/projects/crop_yield/esowc_notes/data/vhi2"); OUT_FILE_DIR="/soge-home/projects/crop_yield/esowc_notes/data/vhi2/vhi_chop";
-nc_files = [f.as_posix() for f in IN_FILE_DIR.glob('*VH.nc')]
+nc_files = pickle.load(open('vhi_errors.pkl','rb'))
 add_coordinates_to_multiple_files(nc_files, OUT_FILE_DIR)
 
 """
@@ -29,6 +29,7 @@ from pprint import pprint
 import pathlib
 import os
 import sys
+import pickle
 
 if os.getcwd().split('/')[-2] == "eswoc_notes":
     sys.path.append('..')
