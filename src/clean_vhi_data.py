@@ -12,11 +12,11 @@ ftp.star.nesdis.noaa.gov/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/
 cd '../'*8
 
 # from ipython
->>> from pathlib import Path
->>> from src.clean_vhi_data import add_coordinates_to_multiple_files
->>> IN_FILE_DIR=Path("/soge-home/projects/crop_yield/esowc_notes/data/vhi2"); OUT_FILE_DIR="/soge-home/projects/crop_yield/esowc_notes/data/vhi2/vhi_chop";
->>> nc_files = [f.as_posix() for f in IN_FILE_DIR.glob('*VH.nc')]
->>> add_coordinates_to_multiple_files(nc_files, OUT_FILE_DIR)
+from pathlib import Path
+from src.clean_vhi_data import add_coordinates_to_multiple_files
+IN_FILE_DIR=Path("/soge-home/projects/crop_yield/esowc_notes/data/vhi2"); OUT_FILE_DIR="/soge-home/projects/crop_yield/esowc_notes/data/vhi2/vhi_chop";
+nc_files = [f.as_posix() for f in IN_FILE_DIR.glob('*VH.nc')]
+add_coordinates_to_multiple_files(nc_files, OUT_FILE_DIR)
 
 """
 
@@ -26,6 +26,7 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from pprint import pprint
+import pathlib
 import os
 import sys
 
