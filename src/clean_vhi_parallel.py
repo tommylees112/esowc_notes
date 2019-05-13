@@ -2,10 +2,6 @@
 # from command line
 >>> python src/clean_vhi_parallel.py
 
-# from ipython
->>> from src.clean_vhi_parallel import add_coordinates_to_multiple_files, IN_FILE_DIR, OUT_FILE_DIR
->>> nc_files = [f.as_posix() for f in IN_FILE_DIR.glob('*VH.nc')]
->>> add_coordinates_to_multiple_files(nc_files, OUT_FILE_DIR)
 """
 
 import glob
@@ -63,19 +59,6 @@ def main():
     print("\n__Failed File List:", [ri[-1] for ri in ris if ri != None])
 
 
-def add_coordinates_to_multiple_files(netcdf_filepaths, out_file_dir):
-    """ for the files that fail in the parallel execution,
-    try again using this function """
-    print(f"Starting work on {netcdf_filepath}")
-    if isinstance(netcdf_filepath, pathlib.PosixPath):
-        netcdf_filepath = netcdf_filepath.as_posix()
-
-    for netcdf_filepath in netcdf_filepaths:
-        try:
-            preprocess_VHI_data(netcdf_filepath, out_file_dir)
-        except Exception as e:
-            print(f"### FAILED: {netcdf_filepath}")
-    return
 
 if __name__ == "__main__":
     main()
