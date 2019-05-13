@@ -135,5 +135,5 @@ def test(parallel=True, pool=None):
 if __name__ == "__main__":
     # pool = multiprocessing.Pool(processes=100)
     pool = Pool(processes=100)
-    # main(pool)
-    test(pool=pool)
+    main(pool)
+    # test(pool=pool)
