@@ -19,3 +19,6 @@ docs/presentations
 
 copy_to_server.sh
 *.out
+
+data/esa_cci_veg
+data/vhi
