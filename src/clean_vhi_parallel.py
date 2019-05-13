@@ -1,3 +1,7 @@
+"""
+python src/clean_vhi_parallel.py
+"""
+
 import glob
 import os
 import multiprocessing
@@ -10,9 +14,10 @@ if os.getcwd().split('/')[-2] == "eswoc_notes":
 print(os.getcwd())
 from clean_vhi_data import preprocess_VHI_data
 
-IN_FILE_DIR=Path("/soge-home/projects/crop_yield/esowc_notes/data/vhi/ftp.star.nesdis.noaa.gov/pub/corp/scsb/wguo/data/Blended_VH_4km/VH")
+# IN_FILE_DIR=Path("/soge-home/projects/crop_yield/esowc_notes/data/vhi/ftp.star.nesdis.noaa.gov/pub/corp/scsb/wguo/data/Blended_VH_4km/VH")
+IN_FILE_DIR=Path("/soge-home/projects/crop_yield/esowc_notes/data/vhi2")
 # OUT_FILE_DIR="/soge-home/projects/crop_yield/ESoWC_dummy/data/vhi/clean2"
-OUT_FILE_DIR="/scratch/chri4118/vhi_chop"
+OUT_FILE_DIR="/soge-home/projects/crop_yield/esowc_notes/data/vhi2/vhi_chop"
 
 
 def add_coordinates(netcdf_filepath):

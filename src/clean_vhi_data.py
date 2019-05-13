@@ -4,6 +4,7 @@ Workflow:
 assign time stamp
 assign lat lon
 create new dataset with these dimensions
+select the region of interest
 Save the output file to new folder
 
 # From the base of the download to the root
