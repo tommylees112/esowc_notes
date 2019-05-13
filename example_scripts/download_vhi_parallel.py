@@ -8,11 +8,9 @@ TODO: add the output_dir as an argument
 from ftplib import FTP
 from pathlib import Path
 import multiprocessing
-from functools import partial
-import click
 import ipdb
 
-# to pickle more objects than multiprocessing can
+# to pickle more than multiprocessing can
 # https://stackoverflow.com/a/21345423/9940782
 from pathos.multiprocessing import ProcessingPool as Pool
 
@@ -86,9 +84,7 @@ def chunks(l, n):
         yield l[i:i+n]
 
 
-@click.command()
-@click.option('--output_dir', default=Path(f'/soge-home/projects/crop_yield/esowc_notes/data/vhi2'), help="The Output directory you want to save the data to")
-def main(pool, output_dir):
+def main(pool, output_dir=OUTPUT_DIR):
     # get the filenames
     vhi_files = get_ftp_filenames()
 
@@ -97,6 +93,7 @@ def main(pool, output_dir):
 
     # run in parallel for multiple file downloads
     # pool = multiprocessing.Pool(processes=100)
+    # ris = pool.map(batch_ftp_request, batches)
     ris = pool.map(partial(batch_ftp_request, output_dir=output_dir), batches)
 
     # write the output (TODO: turn into logging behaviour)
@@ -119,7 +116,8 @@ def test(parallel=True, pool=None):
         # https://stackoverflow.com/a/8805244/9940782
         print("Downloading file in `parallel`")
         # pool = multiprocessing.Pool(processes=100)
-        ris = pool.map(partial(batch_ftp_request, output_dir=output_dir), batches)
+        ris = pool.map(batch_ftp_request, batches)
+        # ris = pool.apply_async(batch_ftp_request,args=(batches,))
 
         # write the output (TODO: turn into logging behaviour)
         print("\n\n*************************\n\n")
@@ -127,7 +125,7 @@ def test(parallel=True, pool=None):
         print("*************************")
         print("Errors:")
         print("\nError: ",[ri for ri in ris if ri != None])
-    else: # individually
+    else:
         # initialise ftp connection
         ftp = FTP('ftp.star.nesdis.noaa.gov')
         ftp.login()
