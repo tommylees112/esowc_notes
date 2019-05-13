@@ -12,7 +12,7 @@ ftp.star.nesdis.noaa.gov/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/
 cd '../'*8
 
 # from ipython
-
+>>> from pathlib import Path
 >>> from src.clean_vhi_data import add_coordinates_to_multiple_files
 >>> IN_FILE_DIR=Path("/soge-home/projects/crop_yield/esowc_notes/data/vhi2"); OUT_FILE_DIR="/soge-home/projects/crop_yield/esowc_notes/data/vhi2/vhi_chop";
 >>> nc_files = [f.as_posix() for f in IN_FILE_DIR.glob('*VH.nc')]
@@ -251,11 +251,10 @@ def preprocess_VHI_data(netcdf_filepath, output_dir):
 
 def add_coordinates_to_multiple_files(netcdf_filepaths, out_file_dir):
     """ run for all files in a list (safely catch errors) """
-    print(f"Starting work on {netcdf_filepath}")
-    if isinstance(netcdf_filepath, pathlib.PosixPath):
-        netcdf_filepath = netcdf_filepath.as_posix()
-
     for netcdf_filepath in netcdf_filepaths:
+        print(f"Starting work on {netcdf_filepath}")
+        if isinstance(netcdf_filepath, pathlib.PosixPath):
+            netcdf_filepath = netcdf_filepath.as_posix()
         try:
             preprocess_VHI_data(netcdf_filepath, out_file_dir)
         except Exception as e:
