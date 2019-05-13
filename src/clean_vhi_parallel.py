@@ -17,6 +17,8 @@ import pathlib
 
 if os.getcwd().split('/')[-2] == "eswoc_notes":
     sys.path.append('..')
+if os.getcwd().split('/')[-] == "eswoc_notes":
+    sys.path.append('.')
 print(os.getcwd())
 from src.clean_vhi_data import preprocess_VHI_data
 
