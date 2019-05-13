@@ -1,9 +1,12 @@
 """
 # NOTE: this file has to be run with ipython
 
-ipython download_vhi_parallel
+ipython example_scripts/download_vhi_parallel.py
 
-TODO: add the output_dir as an argument
+TODO:
+- add the output_dir as an argument
+- figure out how to pass multiple arguments through the pool.map() function
+- so unstable - it has to be run from your root esowc_notes directory (FIX THIS)
 """
 from ftplib import FTP
 from pathlib import Path
@@ -14,7 +17,13 @@ import ipdb
 # https://stackoverflow.com/a/21345423/9940782
 from pathos.multiprocessing import ProcessingPool as Pool
 
-OUTPUT_DIR = Path(f'/soge-home/projects/crop_yield/esowc_notes/data/vhi2')
+# ------------------------------------------------------------------------------
+# TODO: NEED to put inside one of the functions
+# OUTPUT_DIR = Path(f'/soge-home/projects/crop_yield/esowc_notes/data/vhi2')
+OUTPUT_DIR = Path('data/vhi_demo').absolute()
+if not OUTPUT_DIR.exists():
+    OUTPUT_DIR.mkdir()
+# ------------------------------------------------------------------------------
 
 def get_ftp_filenames():
     """  get the filenames of interest """
@@ -84,9 +93,12 @@ def chunks(l, n):
         yield l[i:i+n]
 
 
-def main(pool):
+def main(pool, subset=False):
     # get the filenames
-    vhi_files = get_ftp_filenames()
+    if subset:
+        vhi_files = get_ftp_filenames()[:15]
+    else:
+        vhi_files = get_ftp_filenames()
 
     # split the filenames into batches of 100 (21 batches)?
     batches = [batch for batch in chunks(vhi_files,100)]
@@ -138,8 +150,13 @@ def test(parallel=True, pool=None):
         # ipdb.set_trace()
     return
 
+
 if __name__ == "__main__":
     # pool = multiprocessing.Pool(processes=100)
     pool = Pool(processes=100)
-    main(pool)
     # test(pool=pool)
+
+    # main(pool)
+
+    # GABI RUN THIS OPTION:
+    main(pool, subset=True)
