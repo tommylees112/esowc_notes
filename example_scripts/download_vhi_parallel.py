@@ -96,7 +96,7 @@ def main(pool):
     print("\nError: ",[ri for ri in ris if ri != None])
 
 
-def test(parallel=True):
+def test(parallel=True, pool=None):
     """ run for a single file """
     # get the filenames
     vhi_files = get_ftp_filenames()[:1]
@@ -104,6 +104,7 @@ def test(parallel=True):
 
 
     if parallel:
+        assert pool != None, "pool argument must be provided when using parallel"
         # https://stackoverflow.com/a/8805244/9940782
         print("Downloading file in `parallel`")
         pool = multiprocessing.Pool(processes=100)
@@ -134,5 +135,5 @@ def test(parallel=True):
 if __name__ == "__main__":
     # pool = multiprocessing.Pool(processes=100)
     pool = Pool(processes=100)
-    main(pool)
-    # test()
+    # main(pool)
+    test(pool=pool)
