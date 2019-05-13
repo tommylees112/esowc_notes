@@ -3,6 +3,10 @@ from pathlib import Path
 import multiprocessing
 import ipdb
 
+# to pickle more than multiprocessing can
+# https://stackoverflow.com/a/21345423/9940782
+from pathos.multiprocessing import ProcessingPool as Pool
+
 OUTPUT_DIR = Path(f'/soge-home/projects/crop_yield/esowc_notes/data/vhi2')
 
 def get_ftp_filenames():
@@ -128,6 +132,7 @@ def test(parallel=True):
     return
 
 if __name__ == "__main__":
-    pool = multiprocessing.Pool(processes=100)
+    # pool = multiprocessing.Pool(processes=100)
+    pool = Pool(processes=100)
     main(pool)
     # test()
