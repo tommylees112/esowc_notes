@@ -10,6 +10,8 @@ from pathlib import Path
 import multiprocessing
 import ipdb
 
+from functools import partial
+
 # to pickle more than multiprocessing can
 # https://stackoverflow.com/a/21345423/9940782
 from pathos.multiprocessing import ProcessingPool as Pool
