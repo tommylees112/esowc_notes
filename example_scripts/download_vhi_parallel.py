@@ -97,7 +97,7 @@ def main(pool, output_dir):
 
     # run in parallel for multiple file downloads
     # pool = multiprocessing.Pool(processes=100)
-    ris = pool.map(batch_ftp_request, batches)
+    ris = pool.map(partial(batch_ftp_request, output_dir=output_dir), batches)
 
     # write the output (TODO: turn into logging behaviour)
     print("\n\n*************************\n\n")
@@ -120,7 +120,6 @@ def test(parallel=True, pool=None):
         print("Downloading file in `parallel`")
         # pool = multiprocessing.Pool(processes=100)
         ris = pool.map(partial(batch_ftp_request, output_dir=output_dir), batches)
-        # ris = pool.apply_async(batch_ftp_request,args=(batches,))
 
         # write the output (TODO: turn into logging behaviour)
         print("\n\n*************************\n\n")
@@ -128,7 +127,7 @@ def test(parallel=True, pool=None):
         print("*************************")
         print("Errors:")
         print("\nError: ",[ri for ri in ris if ri != None])
-    else:
+    else: # individually
         # initialise ftp connection
         ftp = FTP('ftp.star.nesdis.noaa.gov')
         ftp.login()
