@@ -20,3 +20,5 @@ example_scripts/parallel_python/copy_to_server.sh
 example_scripts/parallel_python/
 docs/presentations
 
+*.out
+copy_to_server.sh
