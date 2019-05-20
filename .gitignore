@@ -27,3 +27,6 @@ data/esa_cci_veg
 data/vhi
 
 *.pkl
+data/raw/*.nc
+data/raw/*/*.nc
+.mypy_cache/
