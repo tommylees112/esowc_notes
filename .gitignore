@@ -20,5 +20,13 @@ example_scripts/parallel_python/copy_to_server.sh
 example_scripts/parallel_python/
 docs/presentations
 
-*.out
 copy_to_server.sh
+*.out
+
+data/esa_cci_veg
+data/vhi
+
+*.pkl
+data/raw/*.nc
+data/raw/*/*.nc
+.mypy_cache/

@@ -335,8 +335,20 @@ def select_bounding_box_xarray(ds, region):
     lonmax = region.lonmax
     latmin = region.latmin
     latmax = region.latmax
-    return ds.sel(lat=slice(latmin, latmax), lon=slice(lonmin, lonmax))
 
+    dims = [dim for dim in ds.dims.keys()]
+    variables = [var for var in ds.variables if var not in dims]
+
+    if 'latitude' in dims and 'longitude' in dims:
+        ds_slice = ds.sel(latitude=slice(latmin, latmax), longitude=slice(lonmin, lonmax))
+    elif 'lat' in dims and 'lon' in dims:
+        ds_slice = ds.sel(latitude=slice(latmin, latmax), longitude=slice(lonmin, lonmax))
+    else:
+        raise ValueError(f'Your `xr.ds` does not have lon / longitude in the dimensions. Currently: {[dim for dim in new_ds.dims.keys()]}')
+        return
+
+    assert ds_slice[variables[0]].values.size != 0, f"Your slice has returned NO values. Sometimes this means that the latmin, latmax are the wrong way around. Try switching the order of latmin, latmax"
+    return ds_slice
 
 
 def get_unmasked_data(dataArray, dataMask):
