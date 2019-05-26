@@ -54,6 +54,8 @@ def download_chirps_files(chirps_files, data_dir: Path):
     pool.map(wget_file, filepaths, data_dir)
 
 
+
+
 chirps_out_dir = data_dir / "raw" / "chirps"
 if not chirps_out_dir.exists():
     chirps_out_dir.mkdir()
