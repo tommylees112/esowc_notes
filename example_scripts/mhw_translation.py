@@ -1,3 +1,11 @@
+"""
+identify periods when
+
+1. get the climatology (for the time period of interest)
+2. calculate thresholds of interest
+3. 
+"""
+
 import numpy as np
 import scipy as sp
 from scipy import linalg
@@ -5,8 +13,6 @@ from scipy import stats
 import scipy.ndimage as ndimage
 from datetime import date
 from typing import List, Optional, Dict, Tuple
-
-
 
 
 # ------------------------------------------------------------------------------
@@ -257,6 +263,7 @@ def initialise_climatology_arrays(alternateClimatology: bool,
                           doy_leapYear: Optional,):
     """Initialise the climatology vectors:
         tempClim, TClim, yearClim, monthClim, dayClim, doyClim
+        with either
     """
     # if alternate temperature time series is supplied for the calculation of the climatology
     if alternateClimatology:
@@ -621,10 +628,6 @@ def flip_for_cold_spells(clim, mhw):
         )
 
     return clim, mhw
-
-
-
-
 
 
 # ------------------------------------------------------------------------------

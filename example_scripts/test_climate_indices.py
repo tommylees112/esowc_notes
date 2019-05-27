@@ -10,3 +10,7 @@ v = xr.open_dataset(v_dir)
 
 ## TEST SPI
 from climate_indices import indices
+
+
+## test xclim
+import xclim
