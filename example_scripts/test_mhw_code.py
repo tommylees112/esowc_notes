@@ -137,8 +137,13 @@ hilo = 'low'
 # elif hilo == 'high':
 diff = ds_ - new_thresh
 
+if hilo == 'low':
+    group = (ds_ < new_thresh)[variable]
+elif hilo == 'high':
+    group = (ds_ > new_thresh)[variable]
+
 # ------------------------------------------------------------------------------
-#
+# calculate exceedences of threshold
 # ------------------------------------------------------------------------------
 from scripts.eng_utils import get_ds_mask
 
@@ -150,8 +155,32 @@ mask = get_ds_mask(ds)
 non_exceedences = diff[variable] <= 0
 exceedences = diff[variable] > 0
 
+# ------------------------------------------------------------------------------
+# Calculate CONSECUTIVE EXCEEDENCES
+# http://xarray.pydata.org/en/stable/indexing.html
+# ------------------------------------------------------------------------------
+
+events, n_events = ndimage.label(exceed_bool)  # mhw approach
+
+# personal approach
+raw_df = ds.precip.to_dataframe()
+thresh_df = new_thresh.precip.to_dataframe()
 
 
+# xclim approach
+from xclim.run_length import rle
+
+runs = rle(group).load()
+
+# where is the max run?
+# https://stackoverflow.com/a/40197248/9940782
+# https://github.com/pydata/xarray/issues/60
+max_runs = runs.where(runs == runs.max(), drop=True).squeeze()
+max_runs = [max_runs.isel(time=i) for i in range(len(max_runs.time.values))]
+
+runs.isel_points(runs=runs.argmax(['latitude','longitude']))
+
+r = runs.to_dataset(name='runs')
 # ------------------------------------------------------------------------------
 # XClim test
 # ------------------------------------------------------------------------------
