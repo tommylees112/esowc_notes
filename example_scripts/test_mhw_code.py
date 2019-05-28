@@ -60,7 +60,7 @@ thresh = clim - ds_.groupby(f'time.{time_period}').std(dim='time')
 
 def calculate_threshold(ds, clim, method, time_period, hilo=None, ):
     """
-    method : str
+    method: str
         ["q90","q10","std","abs",]
     """
     if method == "q90":
@@ -96,7 +96,7 @@ def calculate_threshold(ds, clim, method, time_period, hilo=None, ):
     return thresh
 
 
-def get_thresh_dataarrays(ds, time_period, hilo=None, method='std'):
+def get_thresh_clim_dataarrays(ds, time_period, hilo=None, method='std'):
     """Get the climatology and threshold xarray objects """
     clim = ds.groupby(f'time.{time_period}').mean(dim='time')
     thresh = calculate_threshold(ds, clim, method=method, time_period=time_period, hilo=hilo,)
@@ -274,7 +274,7 @@ p = p.sel(time=slice('1980-01-01','1985-01-01'))
 
 # calculate thresholds
 
-pclim, pthresh = get_thresh_dataarrays(p, time_period, hilo=hilo, method='std')
+pclim, pthresh = get_thresh_clim_dataarrays(p, time_period, hilo=hilo, method='std')
 pnew_thresh = create_shape_aligned_climatology(p, pthresh, variable, time_period)
 pnew_clim = create_shape_aligned_climatology(p, pclim, variable, time_period)
 
@@ -317,7 +317,7 @@ time_period = 'dayofyear'
 hilo = 'low'
 
 # calculate thresholds
-pclim, pthresh = get_thresh_dataarrays(p, time_period, hilo=hilo, method='std')
+pclim, pthresh = get_thresh_clim_dataarrays(p, time_period, hilo=hilo, method='std')
 
 # create TIME ALIGNED matrices
 pclim = create_shape_aligned_climatology(p, pclim, variable, time_period)
@@ -343,7 +343,7 @@ def calculate_threshold_exceedences(ds, variable, time_period, hilo, method='std
     ds = ds.sortby('time')
 
     # calculate climatology and threshold
-    clim, thresh = get_thresh_dataarrays(ds, time_period, hilo=hilo, method=method)
+    clim, thresh = get_thresh_clim_dataarrays(ds, time_period, hilo=hilo, method=method)
 
     # make them the same size as the ds variable
     clim = create_shape_aligned_climatology(ds, clim, variable, time_period)
