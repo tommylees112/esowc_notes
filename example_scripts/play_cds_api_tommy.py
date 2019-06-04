@@ -1,4 +1,5 @@
 from src.exporters.cds import (CDSExporter, ERA5Exporter)
+from src.exporters.s5 import (S5Exporter)
 from pathlib import Path
 from src.utils import get_kenya
 
@@ -24,13 +25,14 @@ area = e.create_area(kenya_region)
 
 
 # times
-years = [_ for _ in range(2018)]
+years = [_ for _ in range(2017,2019)]
 months = [_ for _ in range(1,13)]
 
 # leadtime_hour (0 - 215 days)
 leadtime_hours = [days * 24 for days in range(1, 20)]
 all_leadtimes = [days * 24 for days in range(1, 216)]
 
+\
 assert all([lt in all_leadtimes for lt in leadtime_hours]), f"\
     You have specified an illegal leadtime_hour. Must be an \
     integer where int % 24 == 0"

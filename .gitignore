@@ -32,3 +32,5 @@ data/raw/*/*.nc
 .mypy_cache/
 
 glofas_paper
+josh_scripts
+Code
