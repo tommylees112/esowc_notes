@@ -119,7 +119,7 @@ s5 = S5Exporter(data_dir)
 
 s5.dataset = 'seasonal-monthly-single-levels'
 s5.dataset_reference = dataset_reference[s5.dataset]
-assert s5.get_product_type(None) is 'monthly_mean', f"\
+assert s5.get_product_type() is 'monthly_mean', f"\
 Expecting `product_type` for `seasonal-original-single-levels` \
  dataset to be 'monthly_mean'. Returned: {s5.get_product_type(None)}"
 
@@ -256,19 +256,9 @@ variable = 'total_precipitation'
 min_year = 2017
 max_year = 2017
 min_month = 1
-max_month = 5
-max_leadtime = None
-pressure_levels = None
-selection_request = None
-N_parallel_requests = None
+max_month = 1
+max_leadtime = 1
+N_parallel_requests = 1
 show_api_request = True
 
-s5.export(
-    variable=variable,
-    min_year=min_year,
-    max_year=max_year,
-    min_month=min_month,
-    max_month=max_month,
-    max_leadtime=max_leadtime,
-    pressure_levels=pressure_levels,
-)
+py
