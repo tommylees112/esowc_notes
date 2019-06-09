@@ -44,6 +44,47 @@ c_ = c.sel(time=slice('2010', '2015'))
 - does not require adjusting the data by fitting the data to the Gamma or Pearson Type III
 - can also accommodate missing values
 """
+def rolling_cumsum(ds, rolling_window=3):
+    ds_window = (
+        ds.rolling(time=rolling_window, center=True)
+        .sum()
+        .dropna(dim='time', how='all')
+    )
+    return ds_window
+
+
+def ZSI(da, dim: str = 'time', **kwargs):
+    zsi = (da - da.median(dim=dim)) / da.std(dim=dim)
+    return zsi
+
+
+def apply_over_months(da, func, in_variable, out_variable='rank_norm', **kwargs):
+    return (
+        da.groupby('time.month')
+        .apply(func, args=('time',), **kwargs)
+        .rename({in_variable: out_variable})
+    )
+
+def z_score_index(ds, rolling_window, in_variable):
+    # 1. calculate a cumsum over `rolling_window` timesteps
+    ds_window = rolling_cumsum(ds, rolling_window)
+    # 2. calculate the normalised rank (of each month) for the variable
+    out_variable = 'ZSI'
+    zsi = apply_over_months(
+        ds_window, func=ZSI,
+        in_variable=in_variable, out_variable=out_variable
+    )
+    ds_window = ds_window.merge(dsi.drop('month'))
+
+    return zsi
+
+zsi = z_score_index(c_, rolling_window, in_variable=variable)
+zsi = z_score_index(c, rolling_window=6, in_variable=variable)
+
+fig, ax = plt.subplots()
+zsi.isel(lat=0,lon=100).ZSI.plot(ax=ax)
+rolling_window = 6
+ax.set_title(f'1981-2018 CHIRPS Z-Score Index (ZSI). {rolling_window} months cumsum')
 
 # -----------------------------------------------------------------------------
 ## calculate Z-Score Index (ZSI) PANDAS

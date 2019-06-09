@@ -34,18 +34,67 @@ c_ = c.sel(time=slice('2010', '2015'))
 
 
 # -----------------------------------------------------------------------------
-## calculate Modified China-Z Index (MCZI) xarray
+## calculate China-Z Index (CZI) xarray
 # -----------------------------------------------------------------------------
 
 """
 - CZI assumes that precipitation data follow the Pearson Type III distribution
 - and is related to Wilson–Hilferty cube-root transformation
 
-- MCZI, the median of precipitation (Med) is used instead of the mean of precipitation
+- CZI with that of SPI and Z-score reported similar results
 """
 
+def rolling_cumsum(ds, rolling_window=3):
+    ds_window = (
+        ds.rolling(time=rolling_window, center=True)
+        .sum()
+        .dropna(dim='time', how='all')
+    )
+    return ds_window
+
+
+def CZI(da, dim: str = 'time', **kwargs):
+    zsi = (da - da.mean(dim=dim)) / da.std(dim=dim)
+    cs  = np.power(zsi, 3) / da.sizes[dim]
+    czi = (
+        6.0 / cs * np.power(
+            (cs / 2.0 * zsi + 1.0), 1.0 / 3.0
+        ) - 6.0 / cs + cs / 6.0
+    )
+    return czi
+
+
+def apply_over_months(da, func, in_variable, out_variable='rank_norm', **kwargs):
+    return (
+        da.groupby('time.month')
+        .apply(func, args=('time',), **kwargs)
+        .rename({in_variable: out_variable})
+    )
+
+def china_z_score_index(ds, rolling_window, in_variable):
+    # 1. calculate a cumsum over `rolling_window` timesteps
+    ds_window = rolling_cumsum(ds, rolling_window)
+    # 2. calculate the normalised rank (of each month) for the variable
+    out_variable = 'CZI'
+    czi = apply_over_months(
+        ds_window, func=CZI,
+        in_variable=in_variable, out_variable=out_variable
+    )
+    ds_window = ds_window.merge(dsi.drop('month'))
+
+    return czi
+
+czi = china_z_score_index(c_, rolling_window, in_variable=variable)
+czi = china_z_score_index(c, rolling_window=6, in_variable=variable)
+
+fig, ax = plt.subplots()
+czi.isel(lat=0,lon=100).CZI.plot(ax=ax)
+rolling_window = 6
+ax.set_title(f'1981-2018 CHIRPS China Z-Score Index (CZI). {rolling_window} months cumsum')
+
+
 # -----------------------------------------------------------------------------
-## calculate Modified China-Z Index (MCZI) PANDAS
+## calculate China-Z Index (CZI) PANDAS
 # -----------------------------------------------------------------------------
 
 def get_test_df(ds: xr.Dataset,
@@ -89,9 +138,9 @@ def apply_to_each_month(df_window: pd.DataFrame,
     return df_window
 
 
-def MCZI(x: pd.Series):
+def CZI(x: pd.Series):
     """ Pearson Type III distribution """
-    zsi = (x - x.median()) / x.std()
+    zsi = (x - x.mean()) / x.std()
     cs  = np.power(zsi, 3) / len(x)
     czi = (
         6.0 / cs * np.power(
@@ -109,7 +158,7 @@ droughtThreshold = 0.375
 d = get_test_df(c, variable)
 df_window = calc_cumsum(d, variable, rolling_window)
 df_window = apply_to_each_month(
-    df_window, MCZI, variable
+    df_window, CZI, variable
 )
 df_window.head()
 

@@ -31,24 +31,71 @@ c = c.resample(time='M').mean()
 
 c_ = c.sel(time=slice('2010', '2015'))
 
+
+
 # -----------------------------------------------------------------------------
-## calculate Hutchinson Drought Severity Index (HDSI) xarray
-## Drought Severity Index
+## calculate Modified China-Z Index (MCZI) xarray
 # -----------------------------------------------------------------------------
 
 """
-- raw monthly rainfall totals are integrated to rolling 6-monthly totals
-- then ranked into percentiles by month
-- rescaled to range between -4 and +4 in keeping with the range of the Palmer Index
-- default threshold at -1 which is at 3/8ths or the 37.5th percentile
+- CZI assumes that precipitation data follow the Pearson Type III distribution
+- and is related to Wilson–Hilferty cube-root transformation
+
+- MCZI, the median of precipitation (Med) is used instead of the mean of precipitation
 """
 
+def rolling_cumsum(ds, rolling_window=3):
+    ds_window = (
+        ds.rolling(time=rolling_window, center=True)
+        .sum()
+        .dropna(dim='time', how='all')
+    )
+    return ds_window
+
+
+def MCZI(da, dim: str = 'time', **kwargs):
+    zsi = (da - da.median(dim=dim)) / da.std(dim=dim)
+    cs  = np.power(zsi, 3) / da.sizes[dim]
+    czi = (
+        6.0 / cs * np.power(
+            (cs / 2.0 * zsi + 1.0), 1.0 / 3.0
+        ) - 6.0 / cs + cs / 6.0
+    )
+    return czi
+
+
+def apply_over_months(da, func, in_variable, out_variable='rank_norm', **kwargs):
+    return (
+        da.groupby('time.month')
+        .apply(func, args=('time',), **kwargs)
+        .rename({in_variable: out_variable})
+    )
+
+def china_z_score_index(ds, rolling_window, in_variable):
+    # 1. calculate a cumsum over `rolling_window` timesteps
+    ds_window = rolling_cumsum(ds, rolling_window)
+    # 2. calculate the normalised rank (of each month) for the variable
+    out_variable = 'MCZI'
+    czi = apply_over_months(
+        ds_window, func=MCZI,
+        in_variable=in_variable, out_variable=out_variable
+    )
+    ds_window = ds_window.merge(dsi.drop('month'))
+
+    return czi
+
+mczi = china_z_score_index(c_, rolling_window, in_variable=variable)
+mczi = china_z_score_index(c, rolling_window=6, in_variable=variable)
+
+fig, ax = plt.subplots()
+mczi.isel(lat=0,lon=100).MCZI.plot(ax=ax)
+rolling_window = 6
+ax.set_title(f'1981-2018 CHIRPS Modified China Z-Score Index (MCZI). {rolling_window} months cumsum')
+
 
 # -----------------------------------------------------------------------------
-## calculate Hutchinson Drought Severity Index (HDSI) PANDAS
-## Drought Severity Index
+## calculate Modified China-Z Index (MCZI) PANDAS
 # -----------------------------------------------------------------------------
-
 
 def get_test_df(ds: xr.Dataset,
                 variable: str,
@@ -91,24 +138,28 @@ def apply_to_each_month(df_window: pd.DataFrame,
     return df_window
 
 
-def DSI(x: pd.Series,
-        droughtThreshold: float = 0.375):
-    y = (x.rank() - 1.0) / (len(x) - 1.0)  # normalised rank (0-1)
-    z = 8.0 * (y - 0.5)  # scaled between -4, 4
-    return z
+def MCZI(x: pd.Series):
+    """ Pearson Type III distribution """
+    zsi = (x - x.median()) / x.std()
+    cs  = np.power(zsi, 3) / len(x)
+    czi = (
+        6.0 / cs * np.power(
+            (cs / 2.0 * zsi + 1.0), 1.0 / 3.0
+        ) - 6.0 / cs + cs / 6.0
+    )
+    return czi
 
 
 variable = 'precip'
 rolling_window = 3
 droughtThreshold = 0.375
 
+
 d = get_test_df(c, variable)
 df_window = calc_cumsum(d, variable, rolling_window)
 df_window = apply_to_each_month(
-    df_window, DSI, variable, **{'droughtThreshold': droughtThreshold}
+    df_window, MCZI, variable
 )
 df_window.head()
-
-
 
 #

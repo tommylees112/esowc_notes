@@ -94,12 +94,19 @@ def calculatePNI(ds: xr.Dataset,
     PNI = (ds_window / clim) * 100
     # drop the initial nans caused by the widnowed cumsum
     #  (e.g. window=3 the first 2 months)
-    PNI = PNI.dropna(dim='time', how='all')
+    PNI = PNI.dropna(dim='time', how='all').rename({variable: 'PNI'})
 
     return PNI
 
 
-calculatePNI(ds, variable, time_period)
+pni = calculatePNI(c, variable=variable, time_period='month', rolling_window=6)
+
+fig, ax = plt.subplots()
+pni.isel(lat=0,lon=100).PNI.plot(ax=ax)
+rolling_window = 6
+ax.set_title(f'1981-2018 CHIRPS Percent of Normal Index (PNI). {rolling_window} months cumsum')
+ax.axhline(100, linestyle='--', color='b')
+
 # assert that returns values correct for the given timeperiod
 # assert that the different month values are ALL the same
 

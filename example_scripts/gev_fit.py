@@ -41,6 +41,16 @@ c_lt['time'] = times
 # -----------------------------------------------------------------------------
 ## calculate GEV xarray
 # -----------------------------------------------------------------------------
+ds = c_
+variable = 'precip'
+rolling_window = 3
+
+# cumsum
+ds_window = (
+    ds.rolling(time=rolling_window, center=True)
+    .sum()
+    .dropna(dim='time', how='all')
+)
 
 
 # -----------------------------------------------------------------------------
@@ -59,7 +69,6 @@ def get_test_df(ds: xr.Dataset,
     )
 
     return df
-
 
 variable = 'precip'
 df = get_test_df(c_lt, variable, min_yr=1900, max_yr=2018)
