@@ -34,3 +34,6 @@ data/raw/*/*.nc
 glofas_paper
 josh_scripts
 Code
+*.png
+*.grb
+plots/

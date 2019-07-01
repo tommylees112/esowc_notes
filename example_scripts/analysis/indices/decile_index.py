@@ -152,7 +152,7 @@ ds_window = ds_window.merge(normalised_rank.drop('month'))
 # bin these into quintiles
 value_column = 'rank_norm'
 new_variable_name = 'quintile'
-quintile = bin_to_quintiles(ds_window[value_column], new_variable_name)
+# quintile = bin_to_quintiles(ds_window[value_column], new_variable_name)
 quintile2 = bin_to_quintiles2(ds_window[value_column])
 ds_window = ds_window.merge(quintile.to_dataset(name='quintile'))
 
