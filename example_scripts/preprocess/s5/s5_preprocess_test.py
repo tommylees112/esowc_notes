@@ -13,22 +13,32 @@ import xarray as xr
 from pathlib import Path
 
 data_dir = Path('/Volumes/Lees_Extend/data/ecmwf_sowc/data')
+data_dir = Path('data')
 
 ds = xr.open_dataset(
     data_dir / "raw" / "seasonal" / "fcmean2018.grb",
     engine='cfgrib'
 )
 
-# total precip rate m/s
-d = ds.tprate
+# rename the variables to more reasonable names
+ds = ds.rename({
+    'p146.172': 'surface_sensible_heat_flux',
+    'p147.172': 'surface_latent_heat_flux',
+})
 
-#
+# rename the coords to more reasonable coords
 ds = ds.rename({
     'time': 'initialisation_date',
     'step': 'forecast_horizon'
 })
 
-# select all forecasts of a given time
+# total precip rate m/s
+d = ds.tprate
+
+fig, ax = plt.subplots()
+d.mean(dim=['initialisation_date', 'forecast_horizon', 'number']).plot(ax=ax)
+
+# select all forecasts of a given time (but ignore the )
 # stack the `initialisation_date` and `forecast_horizon`
 stacked = ds.stack(time=('initialisation_date', 'forecast_horizon'))
 stacked['time'] = stacked.valid_time
@@ -36,11 +46,27 @@ stacked = stacked.drop('valid_time')
 
 # or
 stacked = ds.stack(time=('initialisation_date', 'forecast_horizon'))
+# stacked['time'] = stacked.valid_time
 
 # select forecasts 28days ahead
 stacked.sel(forecast_horizon=np.timedelta64(28, 'D'))
 
+# select 'valid_time'
 stacked.swap_dims({'time': 'valid_time'}).sel(valid_time='2018-04')
+
+# ------------------------------------------------------------------------------
+# Select forecasts for a given month
+# ------------------------------------------------------------------------------
+
+# MAM forecasts
+mam = stacked.sel(time=np.isin(stacked['time.month'], [3,4,5]))
+fig, ax = plt.subplots()
+mam.tprate.mean(dim=['time','number']).plot(ax=ax)
+
+# SON forecasts
+son = stacked.sel(time=np.isin(stacked['time.month'], [9,10,11]))
+fig, ax = plt.subplots()
+son.tprate.mean(dim=['time','number']).plot(ax=ax)
 
 #
 #
