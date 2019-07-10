@@ -5,6 +5,16 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from src.analysis.indices import (
+    ZScoreIndex,
+    PercentNormalIndex,
+    DroughtSeverityIndex,
+    ChinaZIndex,
+    DecileIndex,
+    AnomalyIndex,
+    SPI
+)
+
 %load_ext autoreload
 %autoreload 2
 
@@ -19,16 +29,9 @@ data_path = data_dir / "interim" / "chirps_preprocessed" / "chirps_kenya_.nc"
 # -------------------------------------------------------------
 c = xr.open_dataset(data_path)
 
+from ..utils import _create_dummy_precip_data
 
-from ..utils import _make_dataset
-
-data_dir = tmp_dir / "data" / "raw"
-if not data_dir.exists():
-    data_dir.mkdir(exist_ok=True, parents=True)
-
-data_path = data_dir / "tmp_file.nc"
-ds = _make_dataset(size=(30, 30))
-ds.to_netcdf(data_path)
+data_path = _create_dummy_precip_data(tmp_path)
 
 # -------------------------------------------------------------
 # fit ZSI
@@ -80,7 +83,7 @@ d.fit(variable=variable)
 # -------------------------------------------------------------
 from src.analysis.indices.anomaly_index import AnomalyIndex
 
-a= AnomalyIndex(data_path)
+a = AnomalyIndex(data_path)
 variable = 'precip'
 a.fit(variable=variable)
 

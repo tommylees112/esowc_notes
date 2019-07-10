@@ -1,4 +1,4 @@
-# ouce_s5_test.py
+da# ouce_s5_test.py
 from pathlib import Path
 import xarray as xr
 import numpy as np
@@ -9,6 +9,7 @@ from src.preprocess.seas5.ouce_s5 import OuceS5Data
 %autoreload 2
 
 path = '/lustre/soge1/data/incoming/seas5/1.0x1.0/6-hourly/2m_temperature/'
+path = '/soge-home/data/incoming/seas5/1.0x1.0/6-hourly/'
 # -----------------------------------------------------------------
 # get ouce_data
 # -----------------------------------------------------------------
@@ -66,8 +67,6 @@ s.preprocess(
     subset_str=subset_str, regrid=regrid, resample_time=resample_time,
     upsampling=upsampling, variable=variable
 )
-
-
 
 # -----------------------------------------------------------------
 # test the parallel preprocess
