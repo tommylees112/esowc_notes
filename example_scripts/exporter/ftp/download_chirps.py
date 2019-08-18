@@ -3,7 +3,7 @@ ftp://ftp.chg.ucsb.edu
 
 ftp://ftp.chg.ucsb.edu/pub/org/chg/products/CHIRPS-2.0/global_pentad/netcdf/
 """
-
+from pathlib import Path
 from typing import List, Optional
 from bs4 import BeautifulSoup
 import urllib.request

@@ -71,7 +71,8 @@ norm_df = ((ts - ts.mean()) / ts.std()).to_dataframe()
 
 fig, ax = plt.subplots()
 norm_df.loc[np.isin(norm_df.index.year,np.arange(2008, 2015))].plot(ax=ax)
-ax.set_title('Normalised Index Values')
+ax.set_title('Normalised Index Values 2008 - 2014')
+ax.axhline(0, 0, 1, color='k', ls='--', alpha=0.4)
 # 2. over the whole spatial domain
 
 
