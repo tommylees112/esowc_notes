@@ -98,7 +98,7 @@ nino['NINO34'] = scale(nino['NINO34'])
 
 
 # ---------------------------
-# correlate with each pixel
+# correlate with each pixel (SPATIAL CORRELATION)
 # ---------------------------
 from scipy.stats.stats import pearsonr
 from datetime import datetime
@@ -157,7 +157,7 @@ def calculate_slow_pearsonr(da: xr.DataArray, series: pd.Series) -> xr.Dataset:
     point_rs = []
     for point in range(len(final_stacked.point)):
         if point % 1000 == 0:
-            pct = f'{(point / len(final_stacked.point)) * 100}%'
+            pct = f'{(point / len(final_stacked.point)) * 100 :.1f}%'
             print(pct)
         x1 = final_stacked.isel(point=point).values
         x2 = series.loc[np.isin(series.index, pd.to_datetime(final_times))].values
@@ -171,49 +171,26 @@ def calculate_slow_pearsonr(da: xr.DataArray, series: pd.Series) -> xr.Dataset:
 
 
 chirps_nino_corr_ds = calculate_slow_pearsonr(chirps_norm_seas['precip'], shifted_nino)
+# vci_nino_corr_ds = calculate_slow_pearsonr(vci_norm_seas['VCI'], shifted_nino)
 
 
+def plot_correlation_ds(correlation_ds: xr.Dataset, variable: str):
+    fig, ax = plt.subplots(figsize=(12, 8))
+    correlation_ds.correlation.plot(ax=ax)
+    ax.set_title(f'{variable} Correlation with ENSO at Seasonal Timesteps: Lag 1')
+    ax.set_xlabel('')
+    ax.set_ylabel('')
+    ax.set_yticklabels('')
+    ax.set_xticklabels('')
+    ax.set_xticks([])
+    ax.set_yticks([])
+    fig.savefig(f'/Users/tommylees/Downloads/{variable}_ENSO_lag1_correlation.png')
 
-# stack
-stacked = stack_pixels(vci_norm_seas).first()
-# drop the missing pixels (all missing)
-stacked = stacked.dropna(dim='point', how='all')
-stacked = stacked.dropna(dim='time', how='all')
 
-# match all timesteps
+variable='precipitation'
+plot_correlation_ds(chirps_nino_corr_ds, variable=variable)
+# title = 'VCI Correlation with ENSO at Seasonal Timesteps: Lag 1'
 
-final_times = matching_timesteps(shifted_nino.index.values, stacked.time.values)
-final_stacked = stacked.sel(time=final_times)
-
-point = 1
-
-point_rs = []
-for point in range(len(final_stacked.point)):
-    if point % 1000 == 0:
-        pct = f'{point / len(final_stacked.point)}%'
-        print(pct)
-    x1 = final_stacked.isel(point=point).values
-    x2 = shifted_nino.loc[np.isin(shifted_nino.index, final_times)].values
-    try:
-        r, _ = pearsonr(x1, x2)
-    except ValueError:
-        r = np.nan
-    point_rs.append(r)
-
-out = xr.ones_like(final_stacked).isel(time=0)
-out.values = point_rs
-correlation_ds = out.unstack('point').to_dataset(name=f'correlation')
-
-fig, ax = plt.subplots(figsize=(12, 8))
-correlation_ds.correlation.plot(ax=ax)
-ax.set_title('VCI Correlation with ENSO at Seasonal Timesteps: Lag 1')
-ax.set_xlabel('')
-ax.set_ylabel('')
-ax.set_yticklabels('')
-ax.set_xticklabels('')
-ax.set_xticks([])
-ax.set_yticks([])
-fig.savefig('/Users/tommylees/Downloads/VCI_ENSO_lag1_correlation.png')
 
 # VECTORIZE this shit ...
 xr.apply_ufunc(
@@ -225,6 +202,14 @@ pearsonr(stacked.isel(point=1).values, nino_seas['NINO34'].values)
 
 # unstack
 stacked.unstack('point').to_dataset(name=f'corrcoef')
+
+# ---------------------------
+# correlate with each time (TEMPORAL CORRELATION)
+# ---------------------------
+da = chirps_norm_seas['precip']
+
+stacked = stack_pixels(da).first()
+# da.stack(point=('time')).groupby('time').all()
 
 
 # --------------------

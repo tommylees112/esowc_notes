@@ -5,11 +5,6 @@ import numpy as np
 
 from typing import Dict
 
-# import sys
-# sys.path.append('..')
-# sys.path.append('../..')
-
-# waiting for merge
 from src.analysis import (
     VegetationDeficitIndex, SPI, MovingAverage
 )
