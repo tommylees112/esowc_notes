@@ -1,0 +1,28 @@
+Presentation:
+- what changes to the gradient descent algorithm (the R ADAM stuff)
+- add a legend to the spatial plots in the plot+histograms
+- up to us what bits we want to emphasise
+- broad overview of the pipeline
+- shap values explanation on the slides
+- see the results and the SHAP values
+- asking questions of the performance
+    - some analysis of why performance is better or worse?
+- See the pipeline & OUTPUTS (what can we now do with the pipeline)
+- get people excited enough to come and see our repository
+
+Notebooks:
+- they were relatively happy and will go through and have a look
+- We need to sort the environment.yml file
+
+Phi Week
+- Tuesday deadline
+- AIM: spark interest and get people to github
+
+AI for Copernicus data
+- November 4th - 8th
+- would like us to present there too!
+- what we did during the summer of weather code & what we found
+
+Going forwards
+- they are keen to continue to work together and hope that we do keep working on teh pipeline
+- to use the pipeline to address the performance of these ML models against GLOFAS for example (streamflow / hydrological droughts)

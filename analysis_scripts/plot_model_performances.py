@@ -46,15 +46,16 @@ def open_pred_data(model: str,
 
     return pred_ds
 
-def read_pred_data(model: str):
-    model_pred_dir = (data_dir / 'models' / 'one_month_forecast' / model)
+def read_pred_data(model: str,
+                   data_dir: Path = Path('data'),
+                   experiment: str = 'one_month_forecast') -> Union[xr.Dataset, xr.DataArray]:
+    model_pred_dir = (data_dir / 'models' / experiment / model)
     pred_ds = xr.open_mfdataset((model_pred_dir / '*.nc').as_posix())
     pred_ds.sortby('time')
     pred_da = pred_ds.preds
     pred_da = pred_da.transpose('time', 'lat', 'lon')
 
     return pred_ds, pred_da
-
 
 # read pred data
 ealstm_pred_ds, ealstm_pred_da = read_pred_data('ealstm')

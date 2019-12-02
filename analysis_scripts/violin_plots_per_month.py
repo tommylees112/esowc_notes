@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import calendar
+import seaborn as sns
 
 if 'tommylees' in Path('.').absolute().parts:
     data_dir = Path('/Volumes/Lees_Extend/data/ecmwf_sowc/data')
@@ -58,7 +59,6 @@ mean_val = mean_df.mean().VCI
 # ---------------------------------
 # plot violins for distribution of all
 # ---------------------------------
-import seaborn as sns
 
 mean_df = monmean.to_dataframe().reset_index()
 std_df = monstd.to_dataframe()
@@ -88,8 +88,8 @@ plot.rc.large = 9
 # ---------------------------------
 # spatial plot for paper
 # ---------------------------------
-plot.rc.small = 15
-plot.rc.large = 18
+plot.rc.small = 20
+plot.rc.large = 22
 fig, ax = plt.subplots(figsize=(12, 8))
 spatial_mean.plot(ax=ax)
 ax.set_xlabel('')

@@ -34,6 +34,8 @@ data/raw/*/*.nc
 glofas_paper
 josh_scripts
 Code
+dunning_scripts
+sippel_egu
 *.png
 *.grb
 plots/
