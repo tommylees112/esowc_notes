@@ -11,6 +11,7 @@ import xarray as xr
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import pickle
 
 from typing import List
 
@@ -27,6 +28,9 @@ vci = xr.open_dataset(
     data_dir / 'interim' /
     'VCI_preprocessed' / 'data_kenya.nc'
 )
+
+with open(data_dir.parents[0] / 'one_month_forecast_ALL_ds.pkl', 'rb') as fp:
+    ds = pickle.load(fp)
 
 from src.analysis.exploration import (
     calculate_seasonal_anomalies, create_anomaly_df,
@@ -105,7 +109,7 @@ from datetime import datetime
 
 
 def stack_pixels(da: xr.DataArray) -> xr.DataArray:
-    return da.stack(point=('lat', 'lon')).groupby('point')
+    return da.stack(pixel=('lat', 'lon')).groupby('pixel')
 
 
 
@@ -139,9 +143,10 @@ def _calculate_pearsonr(x1: np.array, x2: np.array) -> float:
 
 def calculate_slow_pearsonr(da: xr.DataArray, series: pd.Series) -> xr.Dataset:
     # stack the pixels
-    stacked = stack_pixels(da).first()
+    # stacked = stack_pixels(da).first()
+    stacked = da.stack(pixel=('lat', 'lon'))
     # drop the missing pixels (all missing)
-    stacked = stacked.dropna(dim='point', how='all')
+    stacked = stacked.dropna(dim='pixel', how='all')
     stacked = stacked.dropna(dim='time', how='all')
     print('* Stacked the pixels (3D -> 2D)*')
 
@@ -154,24 +159,26 @@ def calculate_slow_pearsonr(da: xr.DataArray, series: pd.Series) -> xr.Dataset:
 
     # calculate correlations
     print('* Starting the Correlation Calculations *')
-    point_rs = []
-    for point in range(len(final_stacked.point)):
-        if point % 1000 == 0:
-            pct = f'{(point / len(final_stacked.point)) * 100 :.1f}%'
+    pixel_rs = []
+    for pixel in range(len(final_stacked.pixel)):
+        if pixel % 1000 == 0:
+            pct = f'{(pixel / len(final_stacked.pixel)) * 100 :.1f}%'
             print(pct)
-        x1 = final_stacked.isel(point=point).values
+        x1 = final_stacked.isel(pixel=pixel).values
         x2 = series.loc[np.isin(series.index, pd.to_datetime(final_times))].values
         r = _calculate_pearsonr(x1, x2)
-        point_rs.append(r)
+        pixel_rs.append(r)
 
     # create final dataset
     out = xr.ones_like(final_stacked).isel(time=0)
-    out.values = point_rs
-    return out.unstack('point').to_dataset(name=f'correlation')
+    out.values = pixel_rs
+    return out.unstack('pixel').to_dataset(name=f'correlation')
 
 
 chirps_nino_corr_ds = calculate_slow_pearsonr(chirps_norm_seas['precip'], shifted_nino)
 # vci_nino_corr_ds = calculate_slow_pearsonr(vci_norm_seas['VCI'], shifted_nino)
+
+
 
 
 def plot_correlation_ds(correlation_ds: xr.Dataset, variable: str):
@@ -193,15 +200,15 @@ plot_correlation_ds(chirps_nino_corr_ds, variable=variable)
 
 
 # VECTORIZE this shit ...
-xr.apply_ufunc(
+# xr.apply_ufunc(
 
-)
+# )
 
 
-pearsonr(stacked.isel(point=1).values, nino_seas['NINO34'].values)
+pearsonr(stacked.isel(pixel=1).values, nino_seas['NINO34'].values)
 
 # unstack
-stacked.unstack('point').to_dataset(name=f'corrcoef')
+stacked.unstack('pixel').to_dataset(name=f'corrcoef')
 
 # ---------------------------
 # correlate with each time (TEMPORAL CORRELATION)
@@ -209,9 +216,130 @@ stacked.unstack('point').to_dataset(name=f'corrcoef')
 da = chirps_norm_seas['precip']
 
 stacked = stack_pixels(da).first()
-# da.stack(point=('time')).groupby('time').all()
+# da.stack(pixel=('time')).groupby('time').all()
 
 
 # --------------------
-#
+# calculate a Kendall RANK correlation
 # --------------------
+# http://martin-jung.github.io/post/2018-xarrayregression/
+
+if False:
+
+    def k_cor(x, y, pthres: float = 0.05, direction: bool = True):
+        """
+        Uses the scipy stats module to calculate a Kendall correlation test
+        :x vector: Input pixel vector to run tests on
+        :y vector: The date input vector
+        :pthres: Significance of the underlying test
+        :direction: output only direction as output (-1 & 1)
+        """
+        assert False
+        # Check NA values
+        co = np.count_nonzero(~np.isnan(x))
+        if co < 4:  # If fewer than 4 observations return -9999
+            return -9999
+        # Run the kendalltau test
+        tau, p_value = stats.kendalltau(x, y)
+
+        # Criterium to return results in case of Significance
+        if p_value < pthres:
+            # Check direction
+            if direction:
+                if tau < 0:
+                    return -1
+                elif tau > 0:
+                    return 1
+            else:
+                return tau
+        else:
+        return 0
+
+
+    # The function we are going to use for applying our kendal test per pixel
+    def kendall_correlation(x: xr.DataArray, y: xr.DataArray, dim: str = 'year'):
+        # x = Pixel value, y = a vector containing the date, dim == dimension
+        return xr.apply_ufunc(
+            k_cor, x, y,
+            input_core_dims=[[dim], [dim]],
+            vectorize=True,  # !Important!
+            output_dtypes=[int]
+        )
+
+
+    time = xr.DataArray(np.arange(len(vci['time']))+1, dims='time',
+                    coords={'time': vci['time']})
+    r = kendall_correlation(vci.unstack(), time, 'time')
+
+
+# ------------------
+# xarray covariance
+# ------------------
+# https://github.com/pydata/xarray/issues/1115
+# https://github.com/pydata/xarray/pull/3550
+# mvstats = https://github.com/hrishikeshac/mvstats/blob/master/mvstats/mvstats.py
+
+import mvstats.mvstats as mv
+
+
+other_vars = [v for v in ds.data_vars if v != 'VCI']
+all_ds = []
+lags = np.array([0, 1, 2, 3])
+for var_ in other_vars:
+    v_str = f"VCI_{var_}"
+    all_ = []
+    for lag in lags:
+        print(f"Variable: {var_} Lag {lag}")
+        var_name = f"cov_{var_}_lag{lag}"
+        # covs.append(
+        #     mv.cov(ds.VCI, ds[var_], lagy=lag).rename(var_name)
+        # )
+        # d_ = xr.merge(covs)
+        all_.append(
+            mv.cor(ds.VCI, ds[var_], lagy=lag).rename(var_name).values
+        )
+
+        cor_data = np.array(all_)  # lag, lat, lon
+
+    # create xarray object
+    d = xr.Dataset(
+        {
+            v_str: (
+                ["lag", "lat", "lon"],
+                cor_data,
+            )
+        },
+        coords={
+            "lag": lags,
+            "lon": ds.lon,
+            "lat": ds.lat,
+        },
+    )
+    all_ds.append(d)
+
+corrs = xr.auto_combine(all_ds)
+
+# Plot the correlation maps
+other_vars = [v for v in ds.data_vars if v != 'VCI']
+kwargs = dict(vmin=-0.4, vmax=0.4, cmap='RdBu_r')
+fig, axes = plt.subplots(len(other_vars), len(lags), figsize=(10, 12))
+
+for i, (var_, lag) in enumerate([v for v in itertools.product(other_vars, lags)]):
+    ax_ix = np.unravel_index(i, (len(other_vars), len(lags)))
+    ax = axes[ax_ix]
+    corrs[f'VCI_{var_}'].sel(lag=lag).plot(ax=ax, add_colorbar=False, **kwargs)
+
+    ax.set_title(f'{var_} Lag: {lag}')
+
+    # Turn off tick labels
+    ax.set_axis_off()
+
+plt.tight_layout()
+fig.savefig('/Users/tommylees/Downloads/pixel_wise_correlation_maps.png')
+
+
+# -------------------
+# plot the variables
+# -------------------
+
+stacked = ds.stack(pixel=('lat', 'lon'))

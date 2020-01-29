@@ -91,12 +91,87 @@ d = d.assign_coords(months_ahead=('time', months))
 d.loc[dict(time=d.months_ahead == 1)]
 d.loc[dict(time=d.months_ahead == 2)]
 
-# select
-var = 'tprate'
-d1 = d.loc[dict(time=d.months_ahead == 1)].rename({var: var + '_1'})
-d2 = d.loc[dict(time=d.months_ahead == 2)].rename({var: var + '_2'})
-d3 = d.loc[dict(time=d.months_ahead == 3)].rename({var: var + '_3'})
 
+
+# select the forecasts n months ahead
+var = 'tprate'
+
+
+def get_n_timestep_ahead_data(ds: xr.Dataset, n_tstep: int,
+                              tstep_coord_name: str = 'months_ahead') -> xr.Dataset:
+    """ Get the data for the n timesteps ahead """
+    assert tstep_coord_name in [c for c in ds.coords], \
+        'expect the number of timesteps ahead to have been calculated' \
+        f' already. Coords: {[c for c in ds.coords]}'
+
+    variables = [v for v in ds.data_vars]
+    all_nstep_list = []
+    for var in variables:
+        d_nstep = (
+            ds.loc[dict(time=ds[tstep_coord_name] == n_tstep)]
+            .rename({var: var + f'_{n_tstep}'})
+        )
+        all_nstep_list.append(d_nstep)
+
+    return xr.auto_combine(all_nstep_list)
+
+
+def create_variables_for_n_timesteps_predictions(ds: xr.Dataset, tstep_coord_name: str = 'months_ahead') -> xr.Dataset:
+    assert all(
+        np.isin(
+            ['initialisation_date', 'forecast_horizon', tstep_coord_name],
+            [c for c in ds.coords]
+        )), 'Expecting to have ' \
+            f'initialisation_date forecast_horizon {tstep_coord_name} in ds.coords' \
+            f'currently: {[c for c in ds.coords]}'
+
+    timesteps = np.unique(ds[tstep_coord_name])
+
+    all_timesteps = []
+    for step in timesteps:
+        d = get_n_timestep_ahead_data(
+            ds, step, tstep_coord_name=tstep_coord_name)
+        d = d.drop(
+            ['initialisation_date', 'forecast_horizon', tstep_coord_name])
+        all_timesteps.append(d)
+
+    return xr.auto_combine(all_timesteps)
+
+# get variance and mean
+import re
+# check data_var ends with a digit ('tprate_1')
+# ensure that prior preprocessing done!
+match = re.compile(r'_\d')
+variables = [v for v in ds.data_vars]
+assert all([bool(match.search(v)) for v in variables), 'Expect '\
+    'to have calculated the n month ahead for the variables in dataset' \
+    f'currently: {variables}'
+
+def get_variance_and_mean_over_number(ds: xr.Dataset) -> xr.Dataset:
+    """Collapse the 'number' dimension and return a Dataset with
+    (lat, lon, time) coords and two variables:
+        {var}_mean / {var}_std
+    """
+    variables = [v for v in ds.data_vars]
+
+    # ensure that 'number' still exists in the coords
+    assert 'number' in [c for c in ds.coords], 'require `number` to '\
+        'be a coord in the Dataset object to collapse by mean/std'
+
+    # calculate mean and std collapsing the 'number' coordinate
+    predict_ds_list = []
+    for var in variables:
+        print(f"Calculating the mean / std for forecast variable: {var}")
+        mean_std = []
+        mean_std.append(
+            ds.mean(dim='number').rename({var: var + '_mean'})
+        )
+        mean_std.append(
+            ds.std(dim='number').rename({var: var + '_std'})
+        )
+        predict_ds_list.append(xr.auto_combine(mean_std))
+
+    return xr.auto_combine(predict_ds_list)
 
 # --------------------------
 # stack overflow question
