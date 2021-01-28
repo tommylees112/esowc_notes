@@ -1,22 +1,20 @@
-from src.exporters.s5 import (S5Exporter)
+from src.exporters.s5 import S5Exporter
 from pathlib import Path
 import numpy as np
 
 # %load_ext autoreload
 # %autoreload 2
 
-data_dir = Path('data')
+data_dir = Path("data")
 
-granularity = 'hourly'
-pressure_level=False
+granularity = "hourly"
+pressure_level = False
 
 s5 = S5Exporter(
-    data_folder=data_dir,
-    granularity=granularity,
-    pressure_level=pressure_level,
+    data_folder=data_dir, granularity=granularity, pressure_level=pressure_level
 )
 
-variable = 'total_precipitation'
+variable = "total_precipitation"
 min_year = 2015
 max_year = 2018
 min_month = 1

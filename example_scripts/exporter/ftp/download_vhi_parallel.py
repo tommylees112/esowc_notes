@@ -20,22 +20,23 @@ from pathos.multiprocessing import ProcessingPool as Pool
 # ------------------------------------------------------------------------------
 # TODO: NEED to put inside one of the functions
 # OUTPUT_DIR = Path(f'/soge-home/projects/crop_yield/esowc_notes/data/vhi2')
-OUTPUT_DIR = Path('data/vhi_demo').absolute()
+OUTPUT_DIR = Path("data/vhi_demo").absolute()
 if not OUTPUT_DIR.exists():
     OUTPUT_DIR.mkdir()
 # ------------------------------------------------------------------------------
 
+
 def get_ftp_filenames():
     """  get the filenames of interest """
-    with FTP('ftp.star.nesdis.noaa.gov') as ftp:
+    with FTP("ftp.star.nesdis.noaa.gov") as ftp:
         ftp.login()
-        ftp.cwd('/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/')
+        ftp.cwd("/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/")
 
         # append the filenames to a list
         listing = []
         ftp.retrlines("LIST", listing.append)
         # extract the filename
-        filepaths = [f.split(' ')[-1] for f in listing]
+        filepaths = [f.split(" ")[-1] for f in listing]
         # extract only the filenames of interest
         vhi_files = [f for f in filepaths if ".VH.nc" in f]
 
@@ -46,7 +47,7 @@ def download_file_from_ftp(ftp_instance, filename, output_filename):
     """ download a single file from the `ftp_instance`
     """
     print(f"Downloading {output_filename}")
-    with open(output_filename,'wb') as lf:
+    with open(output_filename, "wb") as lf:
         ftp_instance.retrbinary("RETR " + filename, lf.write)
     if output_filename.exists():
         print(f"Successful Download! {output_filename}")
@@ -58,9 +59,9 @@ def download_file_from_ftp(ftp_instance, filename, output_filename):
 
 def batch_ftp_request(filenames, output_dir=OUTPUT_DIR):
     """ This has the context manager to avoid overloading ftp server """
-    with FTP('ftp.star.nesdis.noaa.gov') as ftp:
+    with FTP("ftp.star.nesdis.noaa.gov") as ftp:
         ftp.login()
-        ftp.cwd('/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/')
+        ftp.cwd("/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/")
 
         for filename in filenames:
             output_filename = output_dir / filename
@@ -72,14 +73,13 @@ def batch_ftp_request(filenames, output_dir=OUTPUT_DIR):
 def each_file_individually(filenames, output_dir=OUTPUT_DIR):
     """ individual context for each file (will that overload that poor server?)"""
     assert False, "Is this irresponsible?"
-    with FTP('ftp.star.nesdis.noaa.gov') as ftp:
+    with FTP("ftp.star.nesdis.noaa.gov") as ftp:
         ftp.login()
-        ftp.cwd('/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/')
+        ftp.cwd("/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/")
         for filename in filenames:
             output_filename = output_dir / filename
             download_file_from_ftp(ftp, filename, output_filename)
     return
-
 
 
 def chunks(l, n):
@@ -89,7 +89,7 @@ def chunks(l, n):
     # For item i in a range that is a length of l,
     for i in range(0, len(l), n):
         # Create an index range for l of n items:
-        yield l[i:i+n]
+        yield l[i : i + n]
 
 
 def main(pool, subset=False):
@@ -100,7 +100,7 @@ def main(pool, subset=False):
         vhi_files = get_ftp_filenames()
 
     # split the filenames into batches of 100 (21 batches)?
-    batches = [batch for batch in chunks(vhi_files,100)]
+    batches = [batch for batch in chunks(vhi_files, 100)]
 
     # run in parallel for multiple file downloads
     # pool = multiprocessing.Pool(processes=100)
@@ -111,15 +111,14 @@ def main(pool, subset=False):
     print("Script Run")
     print("*************************")
     print("Errors:")
-    print("\nError: ",[ri for ri in ris if ri != None])
+    print("\nError: ", [ri for ri in ris if ri != None])
 
 
 def test(parallel=True, pool=None):
     """ run for a single file """
     # get the filenames
     vhi_files = get_ftp_filenames()[:1]
-    batches = [batch for batch in chunks(vhi_files,100)][0]
-
+    batches = [batch for batch in chunks(vhi_files, 100)][0]
 
     if parallel:
         assert pool != None, "pool argument must be provided when using parallel"
@@ -134,12 +133,12 @@ def test(parallel=True, pool=None):
         print("Script Run")
         print("*************************")
         print("Errors:")
-        print("\nError: ",[ri for ri in ris if ri != None])
+        print("\nError: ", [ri for ri in ris if ri != None])
     else:
         # initialise ftp connection
-        ftp = FTP('ftp.star.nesdis.noaa.gov')
+        ftp = FTP("ftp.star.nesdis.noaa.gov")
         ftp.login()
-        ftp.cwd('/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/')
+        ftp.cwd("/pub/corp/scsb/wguo/data/Blended_VH_4km/VH/")
         # download the file individually
         print("Downloading file individually")
         filename = batches[0]

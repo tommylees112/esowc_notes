@@ -9,43 +9,46 @@ from .base import BasePreProcessor
 class ICDCPreprocessor(BasePreProcessor):
     """ For working with data on ICDC (SPECIFIC to Uni Server)
     """
+
     variable: str  # the name of the variable on icdc
     source: str  # {'land', 'atmosphere', 'climate_indices', 'ocean', 'ice_and_snow'}
 
-    def __init__(self, data_folder: Path = Path('data')) -> None:
+    def __init__(self, data_folder: Path = Path("data")) -> None:
         super().__init__(data_folder)
-        self.icdc_data_dir = Path(f'/pool/data/ICDC/{self.source}/')
+        self.icdc_data_dir = Path(f"/pool/data/ICDC/{self.source}/")
 
     def get_icdc_filepaths(self) -> List[Path]:
-        dir = self.icdc_data_dir / self.dataset / 'DATA'
+        dir = self.icdc_data_dir / self.dataset / "DATA"
         years = [d.name for d in dir.iterdir() if d.is_dir()]
 
         filepaths: List = []
         for year in years:
-            filepaths.extend((dir / year).glob('*.nc'))
+            filepaths.extend((dir / year).glob("*.nc"))
 
         if filepaths != []:
             return filepaths
         else:
-            filepaths.extend((dir).glob('*.nc'))
+            filepaths.extend((dir).glob("*.nc"))
             return filepaths
 
     @staticmethod
-    def create_filename(netcdf_filename: str,
-                        subset_name: Optional[str] = None) -> str:
+    def create_filename(netcdf_filename: str, subset_name: Optional[str] = None) -> str:
         """
         {base_str}.nc
         """
         filename_stem = netcdf_filename[:-3]
         if subset_name is not None:
-            new_filename = f'{filename_stem}_{subset_name}.nc'
+            new_filename = f"{filename_stem}_{subset_name}.nc"
         else:
-            new_filename = f'{filename_stem}.nc'
+            new_filename = f"{filename_stem}.nc"
         return new_filename
 
-    def _preprocess_single(self, netcdf_filepath: Path,
-                           subset_str: Optional[str] = 'kenya',
-                           regrid: Optional[xr.Dataset] = None) -> None:
+    def _preprocess_single(
+        self,
+        netcdf_filepath: Path,
+        subset_str: Optional[str] = "kenya",
+        regrid: Optional[xr.Dataset] = None,
+    ) -> None:
         """Run the Preprocessing steps for the data stored on ICDC
         https://icdc.cen.uni-hamburg.de/1/daten.html
 
@@ -55,7 +58,7 @@ class ICDCPreprocessor(BasePreProcessor):
         * create new dataset with regrid dimensions
         * Save the output file to new folder
         """
-        print(f'Starting work on {netcdf_filepath.name}')
+        print(f"Starting work on {netcdf_filepath.name}")
         # 1. read in the dataset
         ds = xr.open_dataset(netcdf_filepath)
 
@@ -70,23 +73,27 @@ class ICDCPreprocessor(BasePreProcessor):
             ds = self.regrid(ds, regrid)
 
         # 6. create the filepath and save to that location
-        assert netcdf_filepath.name[-3:] == '.nc', \
-            f'filepath name should be a .nc file. Currently: {netcdf_filepath.name}'
+        assert (
+            netcdf_filepath.name[-3:] == ".nc"
+        ), f"filepath name should be a .nc file. Currently: {netcdf_filepath.name}"
 
         filename = self.create_filename(
             netcdf_filepath.name,
-            subset_name=subset_str if subset_str is not None else None
+            subset_name=subset_str if subset_str is not None else None,
         )
         print(f"Saving to {self.interim}/{filename}")
         ds.to_netcdf(self.interim / filename)
 
         print(f"** Done for {self.dataset} {netcdf_filepath.name} **")
 
-    def preprocess(self, subset_str: Optional[str] = 'kenya',
-                   regrid: Optional[Path] = None,
-                   resample_time: Optional[str] = 'M',
-                   upsampling: bool = False,
-                   cleanup: bool = False) -> None:
+    def preprocess(
+        self,
+        subset_str: Optional[str] = "kenya",
+        regrid: Optional[Path] = None,
+        resample_time: Optional[str] = "M",
+        upsampling: bool = False,
+        cleanup: bool = False,
+    ) -> None:
         """ Preprocess all of the GLEAM .nc files to produce
         one subset file.
 
@@ -121,120 +128,120 @@ class ICDCPreprocessor(BasePreProcessor):
 
 
 class ESACCISoilMoisturePreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'esa_cci_soilmoisture'
+    source = "land"
+    dataset = "esa_cci_soilmoisture"
 
 
 class LAIModisAvhrrPreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'avhrr_modis_lai'
+    source = "land"
+    dataset = "avhrr_modis_lai"
 
 
 class ModisNDVIPreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'modis_aqua_vegetationindex'
+    source = "land"
+    dataset = "modis_aqua_vegetationindex"
 
 
 class AMSRESoilMoisturePreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'amsre_soilmoisture'
+    source = "land"
+    dataset = "amsre_soilmoisture"
 
 
 class ASCATSoilMoisturePreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'ascat_soilmoisture'
+    source = "land"
+    dataset = "ascat_soilmoisture"
 
 
 class EUMetsatAlbedoPreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'eumetsat_albedo'
+    source = "land"
+    dataset = "eumetsat_albedo"
 
 
 class EUMetSatAlbedo2Preprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'eumetsat_clara2_surfacealbedo'
+    source = "land"
+    dataset = "eumetsat_clara2_surfacealbedo"
 
 
 class EUMetSatRadiationPreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'eumetsat_clara2_surfaceradiation'
+    source = "land"
+    dataset = "eumetsat_clara2_surfaceradiation"
 
 
 class EUMetSatIrradiancePreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'eumetsat_surfacesolarirradiance'
+    source = "land"
+    dataset = "eumetsat_surfacesolarirradiance"
 
 
 class SpotFAPARPreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'fapar_spot_proba_v'
+    source = "land"
+    dataset = "fapar_spot_proba_v"
 
 
 class GLEAMEvaporationPreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'gleam_evaporation'
+    source = "land"
+    dataset = "gleam_evaporation"
 
 
 class SpotLaiPreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'lai_spot_proba_v'
+    source = "land"
+    dataset = "lai_spot_proba_v"
 
 
 class SpotLSAlbedoPreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'land_surface_albedo_spot'
+    source = "land"
+    dataset = "land_surface_albedo_spot"
 
 
 class ModisAlbedoPreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'modis_albedo'
+    source = "land"
+    dataset = "modis_albedo"
 
 
 class ModisForestCoverPreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'modis_forestcoverfraction'
+    source = "land"
+    dataset = "modis_forestcoverfraction"
 
 
 class ModisLandcoverPreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'modis_landcover'
+    source = "land"
+    dataset = "modis_landcover"
 
 
 class ModisLatLonPreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'modis_latlon'
+    source = "land"
+    dataset = "modis_latlon"
 
 
 class ModisLSTClimatologyPreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'modis_lst_climatology'
+    source = "land"
+    dataset = "modis_lst_climatology"
 
 
 class ModisNPPPreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'modis_primary_production'
+    source = "land"
+    dataset = "modis_primary_production"
 
 
 class ModisSRTMPreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'modis-srtm_landwaterdistribution'
+    source = "land"
+    dataset = "modis-srtm_landwaterdistribution"
 
 
 class ModisLSTPreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'modis_terra_landsurfacetemperature'
+    source = "land"
+    dataset = "modis_terra_landsurfacetemperature"
 
 
 class SMOSSoilMoisturePreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'smos_soilmoisture'
+    source = "land"
+    dataset = "smos_soilmoisture"
 
 
 class TopographyPreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'topography'
+    source = "land"
+    dataset = "topography"
 
 
 class SpotVegetationCoverFractionPreprocessor(ICDCPreprocessor):
-    source = 'land'
-    dataset = 'vegetationcoverfraction_spot_proba_v'
+    source = "land"
+    dataset = "vegetationcoverfraction_spot_proba_v"

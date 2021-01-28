@@ -1,19 +1,28 @@
 from collections import namedtuple
 
 DataSource = namedtuple(
-    'DataSource',
-    ['variable', 'dir_name', 'name', 'date_range', 'year_subfolder', 'path', 'file', 'notes']
+    "DataSource",
+    [
+        "variable",
+        "dir_name",
+        "name",
+        "date_range",
+        "year_subfolder",
+        "path",
+        "file",
+        "notes",
+    ],
 )
 
 GLEAM_et = DataSource(
-    variable = "PET",
-    dir_name = "gleam_pet",
-    name = "gleam_pet",
-    date_range = [1980,2016],
-    year_subfolder = False,
-    path = "/work/mj0060/m300157/drought_east_africa/",
-    file = "Ep_{YYYY}_GLEAM_v3.1a.nc",
-    notes = ""
+    variable="PET",
+    dir_name="gleam_pet",
+    name="gleam_pet",
+    date_range=[1980, 2016],
+    year_subfolder=False,
+    path="/work/mj0060/m300157/drought_east_africa/",
+    file="Ep_{YYYY}_GLEAM_v3.1a.nc",
+    notes="",
 )
 
 datasources = [GLEAM_et]
@@ -69,4 +78,3 @@ lookup = {"et":{"variable":"et",
   "notes":""}}
 
 """
-

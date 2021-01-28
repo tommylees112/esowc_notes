@@ -65,9 +65,7 @@ def export(
     )
 
     if self.pressure_level:  # if we are using the pressure_level dataset
-        processed_selection_request.update(
-            self.get_pressure_levels(pressure_levels)
-        )
+        processed_selection_request.update(self.get_pressure_levels(pressure_levels))
 
     if N_parallel_requests > 1:  # Run in parallel
         # p = multiprocessing.Pool(int(N_parallel_requests))
@@ -91,8 +89,7 @@ def export(
             in_parallel = False
             output_paths.append(
                 self._export(
-                    self.dataset, updated_request,
-                    show_api_request, in_parallel
+                    self.dataset, updated_request, show_api_request, in_parallel
                 )
             )
 
@@ -104,8 +101,9 @@ def export(
                 dataset=self.dataset,
                 selection_request=selection_request,
                 show_api_request=show_api_request,
-                in_parallel=in_parallel
-            ) for selection_request in updated_requests
+                in_parallel=in_parallel,
+            )
+            for selection_request in updated_requests
         )
         # output_paths = p.map(
         #     partial(self._export,

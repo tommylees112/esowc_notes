@@ -8,21 +8,23 @@ from .base import BasePreProcessor
 
 class NDVIPreprocessor(BasePreProcessor):
     """ Preprocesses the ESA CCI Landcover data """
-    dataset = 'ndvi'
 
-    def create_filename(self, netcdf_filepath: str,
-                        subset_name: Optional[str] = None) -> str:
+    dataset = "ndvi"
+
+    def create_filename(
+        self, netcdf_filepath: str, subset_name: Optional[str] = None
+    ) -> str:
         """
         ESACCI-LC-L4-LCCS-Map-300m-P1Y-1992-v2.0.7b.nc
             =>
         1992_ESACCI-LC-L4-LCCS-Map-300m-P1Y-1992-v2.0.7b_kenya.nc
         """
-        if netcdf_filepath[-3:] == '.nc':
+        if netcdf_filepath[-3:] == ".nc":
             filename_stem = netcdf_filepath[:-3]
         else:
             filename_stem = netcdf_filepath
 
-        year = filename_stem.split('-')[-2]
+        year = filename_stem.split("-")[-2]
 
         if subset_name is not None:
             new_filename = f"{year}_{filename_stem}_{subset_name}.nc"
@@ -30,9 +32,12 @@ class NDVIPreprocessor(BasePreProcessor):
             new_filename = f"{year}_{filename_stem}.nc"
         return new_filename
 
-    def _preprocess_single(self, netcdf_filepath: Path,
-                           subset_str: Optional[str] = 'kenya',
-                           regrid: Optional[xr.Dataset] = None) -> None:
+    def _preprocess_single(
+        self,
+        netcdf_filepath: Path,
+        subset_str: Optional[str] = "kenya",
+        regrid: Optional[xr.Dataset] = None,
+    ) -> None:
         """ Preprocess a single netcdf file (run in parallel if
         `parallel_processes` arg > 1)
 
@@ -44,10 +49,11 @@ class NDVIPreprocessor(BasePreProcessor):
         * assign time stamp
         * Save the output file to new folder
         """
-        assert netcdf_filepath.name[-3:] == '.nc', \
-            f'filepath name should be a .nc file. Currently: {netcdf_filepath.name}'
+        assert (
+            netcdf_filepath.name[-3:] == ".nc"
+        ), f"filepath name should be a .nc file. Currently: {netcdf_filepath.name}"
 
-        print(f'Starting work on {netcdf_filepath.name}')
+        print(f"Starting work on {netcdf_filepath.name}")
         ds = xr.open_dataset(netcdf_filepath)
 
         # 2. chop out EastAfrica
@@ -63,29 +69,32 @@ class NDVIPreprocessor(BasePreProcessor):
             ds = self.regrid(ds, regrid)
 
         # 4. assign time stamp
-        time = pd.to_datetime(ds.attrs['time_coverage_start'])
+        time = pd.to_datetime(ds.attrs["time_coverage_start"])
         ds = ds.assign_coords(time=time)
-        ds = ds.expand_dims('time')
+        ds = ds.expand_dims("time")
 
         # 5. extract the landcover data (reduce storage use)
-        ds = ds.lccs_class.to_dataset(name='lc_class')
+        ds = ds.lccs_class.to_dataset(name="lc_class")
 
         # save to specific filename
         filename = self.create_filename(
             netcdf_filepath.name,
-            subset_name=subset_str if subset_str is not None else None
+            subset_name=subset_str if subset_str is not None else None,
         )
         print(f"Saving to {self.interim}/{filename}")
         ds.to_netcdf(self.interim / filename)
 
         print(f"** Done for ESA CCI landcover: {filename} **")
 
-    def preprocess(self, subset_str: Optional[str] = 'kenya',
-                   regrid: Optional[Path] = None,
-                   resample_time: Optional[str] = 'M',
-                   upsampling: bool = False,
-                   parallel_processes: int = 1,
-                   cleanup: bool = True) -> None:
+    def preprocess(
+        self,
+        subset_str: Optional[str] = "kenya",
+        regrid: Optional[Path] = None,
+        resample_time: Optional[str] = "M",
+        upsampling: bool = False,
+        parallel_processes: int = 1,
+        cleanup: bool = True,
+    ) -> None:
         """Preprocess all of the NOAA NDVI .nc files to produce
         one subset file.
 
@@ -93,7 +102,7 @@ class NDVIPreprocessor(BasePreProcessor):
         ----
         - the raw data is downloaded at daily resolution
         """
-        print(f'Reading data from {self.raw_folder}. Writing to {self.interim}')
+        print(f"Reading data from {self.raw_folder}. Writing to {self.interim}")
         nc_files = self.get_filepaths()
 
         if regrid is not None:
@@ -106,16 +115,10 @@ class NDVIPreprocessor(BasePreProcessor):
         else:
             pool = multiprocessing.Pool(processes=parallel_processes)
             outputs = pool.map(
-                partial(self._preprocess_single,
-                        subset_str=subset_str,
-                        regrid=regrid),
-                nc_files)
+                partial(self._preprocess_single, subset_str=subset_str, regrid=regrid),
+                nc_files,
+            )
             print("\nOutputs (errors):\n\t", outputs)
-
-
-
-
-
 
     # def merge_files(self, subset_str: Optional[str] = 'kenya',
     #                 resample_time: Optional[str] = 'M',
@@ -131,14 +134,16 @@ class NDVIPreprocessor(BasePreProcessor):
     #     ds.to_netcdf(out)
     #     print(f"\n**** {out} Created! ****\n")
 
-
-    def preprocess(self, subset_str: Optional[str] = 'kenya',
-                   regrid: Optional[Path] = None,
-                   resample_time: Optional[str] = 'M',
-                   upsampling: bool = True,
-                   parallel_processes: int = 1,
-                   years: Optional[List[int]] = None,
-                   cleanup: bool = True) -> None:
+    def preprocess(
+        self,
+        subset_str: Optional[str] = "kenya",
+        regrid: Optional[Path] = None,
+        resample_time: Optional[str] = "M",
+        upsampling: bool = True,
+        parallel_processes: int = 1,
+        years: Optional[List[int]] = None,
+        cleanup: bool = True,
+    ) -> None:
         """Preprocess all of the ESA CCI landcover .nc files to produce
         one subset file resampled to the timestep of interest.
         (downloaded as annual timesteps)
@@ -151,9 +156,7 @@ class NDVIPreprocessor(BasePreProcessor):
         - This assumes that landcover is relatively consistent in the 1980s
         as the 1990s, 2000s and 2010s
         """
-        print(f'Reading data from {self.raw_folder}. Writing to {self.interim}')
-
-
+        print(f"Reading data from {self.raw_folder}. Writing to {self.interim}")
 
         # self.merge_files(subset_str, resample_time, upsampling)
         # pass

@@ -3,8 +3,8 @@ import xarray as xr
 from src.preprocess.preprocess_utils import select_bounding_box_xarray
 
 
-project_dir = Path('.')
-data_dir = Path('data')
+project_dir = Path(".")
+data_dir = Path("data")
 chirps_dir = data_dir / "raw" / "chirps"
 
 from src.preprocess.chirps import CHIRPSPreprocesser
@@ -19,13 +19,13 @@ netcdf_filepath = files[0]
 
 
 # test that produce the right filename output
-fnames = [c.create_filename(f, subset=True, subset_name='kenya') for f in fs]
+fnames = [c.create_filename(f, subset=True, subset_name="kenya") for f in fs]
 fname = fnames[0]
 
 # test the saving functionality works
-subset_name = 'kenya'
+subset_name = "kenya"
 ds = xr.open_dataset(netcdf_filepath)
-if subset_name == 'kenya':
+if subset_name == "kenya":
     kenya_region = c.get_kenya()
     kenya_ds = select_bounding_box_xarray(ds, kenya_region)
 

@@ -2,20 +2,22 @@ import glob
 import os
 import multiprocessing
 
+
 def unzip_file(file):
-  os.system(f"gunzip {file}")
-  return
+    os.system(f"gunzip {file}")
+    return
+
 
 def unzip_all_files(dir):
-  if dir[-1] != '/':
-    dir += '/'
+    if dir[-1] != "/":
+        dir += "/"
 
-  files = glob.glob(f"{dir}/*")
+    files = glob.glob(f"{dir}/*")
 
-  for file in files:
-    unzip_file(file)
+    for file in files:
+        unzip_file(file)
 
-  return
+    return
 
 
 all_dirs = glob.glob("/scratch/chri4118/tiff/*")

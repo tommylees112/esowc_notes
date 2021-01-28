@@ -24,7 +24,7 @@ def regression(
     include_pred_month=True,
     surrounding_pixels=1,
     explain=False,
-    static='features',
+    static="features",
 ):
     predictor = LinearRegression(
         get_data_path(),
@@ -46,7 +46,7 @@ def linear_nn(
     include_pred_month=True,
     surrounding_pixels=1,
     explain=False,
-    static='features',
+    static="features",
 ):
     predictor = LinearNetwork(
         layer_sizes=[100],
@@ -54,7 +54,7 @@ def linear_nn(
         experiment=experiment,
         include_pred_month=include_pred_month,
         surrounding_pixels=surrounding_pixels,
-        static=static
+        static=static,
     )
     predictor.train(num_epochs=50, early_stopping=5)
     predictor.evaluate(save_preds=True)
@@ -69,7 +69,7 @@ def rnn(
     include_pred_month=True,
     surrounding_pixels=1,
     explain=False,
-    static='features',
+    static="features",
 ):
     predictor = RecurrentNetwork(
         hidden_size=128,
@@ -77,7 +77,7 @@ def rnn(
         experiment=experiment,
         include_pred_month=include_pred_month,
         surrounding_pixels=surrounding_pixels,
-        static=static
+        static=static,
     )
     predictor.train(num_epochs=50, early_stopping=5)
     predictor.evaluate(save_preds=True)
@@ -93,7 +93,7 @@ def earnn(
     surrounding_pixels=None,
     pretrained=False,
     explain=False,
-    static='features',
+    static="features",
 ):
     data_path = get_data_path()
 
@@ -111,8 +111,7 @@ def earnn(
         predictor.evaluate(save_preds=True)
         predictor.save_model()
     else:
-        predictor = load_model(
-            data_path / f"models/{experiment}/ealstm/model.pt")
+        predictor = load_model(data_path / f"models/{experiment}/ealstm/model.pt")
 
     if explain:
         test_file = data_path / f"features/{experiment}/test/2018_3"
@@ -120,12 +119,13 @@ def earnn(
         all_shap_for_file(test_file, predictor, batch_size=100)
 
 
-def gbdt(experiment="one_month_forecast",
-         include_pred_month=True,
-         surrounding_pixels=None,
-         pretrained=True,
-         explain=False,
-         static='features',
+def gbdt(
+    experiment="one_month_forecast",
+    include_pred_month=True,
+    surrounding_pixels=None,
+    pretrained=True,
+    explain=False,
+    static="features",
 ):
     data_path = get_data_path()
 
@@ -135,7 +135,7 @@ def gbdt(experiment="one_month_forecast",
         experiment=experiment,
         include_pred_month=include_pred_month,
         surrounding_pixels=surrounding_pixels,
-        static=static
+        static=static,
     )
     predictor.train(early_stopping=5)
     predictor.evaluate(save_preds=True)
@@ -143,9 +143,9 @@ def gbdt(experiment="one_month_forecast",
 
 
 if __name__ == "__main__":
-    #parsimonious()
-    #regression()
-    #linear_nn()
+    # parsimonious()
+    # regression()
+    # linear_nn()
     # rnn()
     earnn()
     # gbdt()

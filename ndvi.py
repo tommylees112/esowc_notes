@@ -10,21 +10,23 @@ from .base import BasePreProcessor
 
 class NDVIPreprocessor(BasePreProcessor):
     """ Preprocesses the ESA CCI Landcover data """
-    dataset = 'ndvi'
 
-    def create_filename(self, netcdf_filepath: str,
-                        subset_name: Optional[str] = None) -> str:
+    dataset = "ndvi"
+
+    def create_filename(
+        self, netcdf_filepath: str, subset_name: Optional[str] = None
+    ) -> str:
         """
         AVHRR-Land_v005_AVH13C1_NOAA-09_19860702_c20170612095548.nc
             =>
         1986_AVHRR-Land_v005_AVH13C1_NOAA-09_19860702_c20170612095548_kenya.nc
         """
-        if netcdf_filepath[-3:] == '.nc':
+        if netcdf_filepath[-3:] == ".nc":
             filename_stem = netcdf_filepath[:-3]
         else:
             filename_stem = netcdf_filepath
 
-        year = filename_stem.split('_')[-2][:4]
+        year = filename_stem.split("_")[-2][:4]
 
         if subset_name is not None:
             new_filename = f"{year}_{filename_stem}_{subset_name}.nc"
@@ -32,9 +34,12 @@ class NDVIPreprocessor(BasePreProcessor):
             new_filename = f"{year}_{filename_stem}.nc"
         return new_filename
 
-    def _preprocess_single(self, netcdf_filepath: Path,
-                           subset_str: Optional[str] = 'kenya',
-                           regrid: Optional[xr.Dataset] = None) -> None:
+    def _preprocess_single(
+        self,
+        netcdf_filepath: Path,
+        subset_str: Optional[str] = "kenya",
+        regrid: Optional[xr.Dataset] = None,
+    ) -> None:
         """ Preprocess a single netcdf file (run in parallel if
         `parallel_processes` arg > 1)
 
@@ -45,12 +50,13 @@ class NDVIPreprocessor(BasePreProcessor):
         * create new dataset with these dimensions
         * Save the output file to new folder / filename
         """
-        assert netcdf_filepath.name[-3:] == '.nc', \
-            f'filepath name should be a .nc file. Currently: {netcdf_filepath.name}'
+        assert (
+            netcdf_filepath.name[-3:] == ".nc"
+        ), f"filepath name should be a .nc file. Currently: {netcdf_filepath.name}"
 
-        print(f'Starting work on {netcdf_filepath.name}')
+        print(f"Starting work on {netcdf_filepath.name}")
         ds = xr.open_dataset(netcdf_filepath)
-        ds = ds.drop_dims(['ncrs', 'nv'])
+        ds = ds.drop_dims(["ncrs", "nv"])
 
         # 2. chop out EastAfrica
         if subset_str is not None:
@@ -66,24 +72,27 @@ class NDVIPreprocessor(BasePreProcessor):
 
         # 5. extract the ndvi data (reduce storage use)
         # NOTE: discarding the quality flags here
-        ds = ds.NDVI.to_dataset(name='ndvi')
+        ds = ds.NDVI.to_dataset(name="ndvi")
 
         # save to specific filename
         filename = self.create_filename(
             netcdf_filepath.name,
-            subset_name=subset_str if subset_str is not None else None
+            subset_name=subset_str if subset_str is not None else None,
         )
         print(f"Saving to {self.interim}/{filename}")
         ds.to_netcdf(self.interim / filename)
 
         print(f"** Done for {self.dataset}: {filename} **")
 
-    def preprocess(self, subset_str: Optional[str] = 'kenya',
-                   regrid: Optional[Path] = None,
-                   resample_time: Optional[str] = 'M',
-                   upsampling: bool = False,
-                   parallel_processes: int = 1,
-                   cleanup: bool = True) -> None:
+    def preprocess(
+        self,
+        subset_str: Optional[str] = "kenya",
+        regrid: Optional[Path] = None,
+        resample_time: Optional[str] = "M",
+        upsampling: bool = False,
+        parallel_processes: int = 1,
+        cleanup: bool = True,
+    ) -> None:
         """Preprocess all of the NOAA NDVI .nc files to produce
         one subset file.
 
@@ -91,7 +100,7 @@ class NDVIPreprocessor(BasePreProcessor):
         ----
         - the raw data is downloaded at daily resolution
         """
-        print(f'Reading data from {self.raw_folder}. Writing to {self.interim}')
+        print(f"Reading data from {self.raw_folder}. Writing to {self.interim}")
         nc_files = self.get_filepaths()
 
         if regrid is not None:
@@ -104,17 +113,14 @@ class NDVIPreprocessor(BasePreProcessor):
         else:
             pool = multiprocessing.Pool(processes=parallel_processes)
             outputs = pool.map(
-                partial(self._preprocess_single,
-                        subset_str=subset_str,
-                        regrid=regrid),
-                nc_files)
+                partial(self._preprocess_single, subset_str=subset_str, regrid=regrid),
+                nc_files,
+            )
             print("\nOutputs (errors):\n\t", outputs)
 
         # merge and resample files
         self.merge_files(
-            subset_str=subset_str,
-            resample_time=resample_time,
-            upsampling=upsampling
+            subset_str=subset_str, resample_time=resample_time, upsampling=upsampling
         )
 
         if cleanup:

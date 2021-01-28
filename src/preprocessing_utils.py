@@ -22,6 +22,7 @@ from shapely import geometry
 # Functions for reprojecting using GDAL and reading resulting .nc file back
 # ------------------------------------------------------------------------------
 
+
 def resample_time(ds, resample_str="M"):
     """ Resample time (e.g. DAILY-> MONTHLY)
     Example:
@@ -93,6 +94,7 @@ def bands_to_time(da, times, var_name):
 # matching resolutions / gridsizes
 # ------------------------------------------------------------------------------
 
+
 def convert_to_same_grid(reference_ds, ds, method="nearest_s2d"):
     """ Use xEMSF package to regrid ds to the same grid as reference_ds
 
@@ -155,7 +157,7 @@ def select_same_time_slice(reference_ds, ds):
     # get the frequency of the time series from reference_ds
     freq = pd.infer_freq(reference_ds.time.values)
     if freq == None:
-        warnings.warn('HARDCODED FOR THIS PROBLEM BUT NO IDEA WHY NOT WORKING')
+        warnings.warn("HARDCODED FOR THIS PROBLEM BUT NO IDEA WHY NOT WORKING")
         freq = "M"
         # assert False, f"Unable to infer frequency from the reference_ds timestep"
 
@@ -171,7 +173,7 @@ def select_same_time_slice(reference_ds, ds):
     orig_time_range = pd.date_range(min_time, max_time, freq=freq)
     # EXTEND the original time_range by 1 (so selecting the whole slice)
     # because python doesn't select the final in a range
-    periods = len(orig_time_range) #+ 1
+    periods = len(orig_time_range)  # + 1
     # create new time series going ONE EXTRA PERIOD
     new_time_range = pd.date_range(min_time, freq=freq, periods=periods)
     new_max = new_time_range.max()
@@ -184,7 +186,9 @@ def select_same_time_slice(reference_ds, ds):
     min_time = datetime.datetime(2001, 1, 31)
     # --------------------------------------------------------------------------
     ds = ds.sel(time=slice(min_time, new_max))
-    assert reference_ds.time.shape[0] == ds.time.shape[0],f"The time dimensions should match, currently reference_ds.time dims {reference_ds.time.shape[0]} != ds.time dims {ds.time.shape[0]}"
+    assert (
+        reference_ds.time.shape[0] == ds.time.shape[0]
+    ), f"The time dimensions should match, currently reference_ds.time dims {reference_ds.time.shape[0]} != ds.time dims {ds.time.shape[0]}"
 
     print_time_min = pd.to_datetime(ds.time.min().values)
     print_time_max = pd.to_datetime(ds.time.max().values)
@@ -222,7 +226,6 @@ def get_holaps_mask(ds):
     return mask
 
 
-
 def select_region(ds, Region):
     """ select East Africa from your xr.Dataset .nc file """
     # lonmin=32.6
@@ -234,13 +237,15 @@ def select_region(ds, Region):
     latmin = Region.latmin
     latmax = Region.latmax
 
-    if ('x' in ds.dims) & ('y' in ds.dims):
-        ds = ds.sel(y=slice(latmax,latmin),x=slice(lonmin, lonmax))
-    elif ('lat' in ds.dims) & ('lon' in ds.dims):
-        ds = ds.sel(lat=slice(latmax,latmin),lon=slice(lonmin, lonmax))
-    elif ('latitude' in ds.dims) & ('longitude' in ds.dims):
-        ds = ds.sel(latitude=slice(latmax,latmin),longitude=slice(lonmin, lonmax))
+    if ("x" in ds.dims) & ("y" in ds.dims):
+        ds = ds.sel(y=slice(latmax, latmin), x=slice(lonmin, lonmax))
+    elif ("lat" in ds.dims) & ("lon" in ds.dims):
+        ds = ds.sel(lat=slice(latmax, latmin), lon=slice(lonmin, lonmax))
+    elif ("latitude" in ds.dims) & ("longitude" in ds.dims):
+        ds = ds.sel(latitude=slice(latmax, latmin), longitude=slice(lonmin, lonmax))
     else:
-        assert False, "You need one of [(y, x), (lat, lon), (latitude, longitude)] in your dims"
+        assert (
+            False
+        ), "You need one of [(y, x), (lat, lon), (latitude, longitude)] in your dims"
 
     return

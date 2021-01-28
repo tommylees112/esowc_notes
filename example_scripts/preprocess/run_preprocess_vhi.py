@@ -12,10 +12,10 @@ nohup python -c "from src.run import Run; from pathlib import Path; data = Path(
 from src.run import Run
 from pathlib import Path
 
-data = Path('data')
+data = Path("data")
 r = Run(data)
 
 
-preprocess_args = {'vhi':[{'subset_kenya':True}]}
+preprocess_args = {"vhi": [{"subset_kenya": True}]}
 
 r.process(preprocess_args)

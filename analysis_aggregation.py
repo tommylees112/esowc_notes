@@ -6,12 +6,12 @@ from datetime import datetime
 from pandas.core.indexes.datetimes import DatetimeIndex
 from typing import Tuple, Dict, List, Union, Optional
 
-data_dir = Path('/Volumes/Lees_Extend/data/ecmwf_sowc/data/')
-ealstm_dir = data_dir / 'models/ealstm'
-nc_files = [d for d in ealstm_dir.iterdir() if d.name[-2:] == 'nc']
+data_dir = Path("/Volumes/Lees_Extend/data/ecmwf_sowc/data/")
+ealstm_dir = data_dir / "models/ealstm"
+nc_files = [d for d in ealstm_dir.iterdir() if d.name[-2:] == "nc"]
 
-test_dir = data_dir / 'features/one_month_forecast/test'
-true_nc_files = [f for f in test_dir.glob('*/*.nc') if f.name == 'y.nc']
+test_dir = data_dir / "features/one_month_forecast/test"
+true_nc_files = [f for f in test_dir.glob("*/*.nc") if f.name == "y.nc"]
 true_data_paths = true_nc_files
 
 # compare
@@ -29,18 +29,20 @@ true_ds.VHI.plot(ax=ax, vmin=0, vmax=100)
 #
 
 # aggregate regions
-region_data_path = Path('data/analysis/boundaries_preprocessed/province_l1_kenya.nc')
+region_data_path = Path("data/analysis/boundaries_preprocessed/province_l1_kenya.nc")
 region_ds = xr.open_dataset(region_data_path)
 
 fig, ax = plt.subplots()
 region_ds.province_l1.plot(ax=ax)
 
-valid_region_ids = [int(k.strip()) for k in region_ds.attrs['keys'].split(',')]
+valid_region_ids = [int(k.strip()) for k in region_ds.attrs["keys"].split(",")]
 
-lookup = dict(zip(
-    [int(k.strip()) for k in region_ds.attrs['keys'].split(',')],
-    [v.strip() for v in region_ds.attrs['values'].split(',')]
-))
+lookup = dict(
+    zip(
+        [int(k.strip()) for k in region_ds.attrs["keys"].split(",")],
+        [v.strip() for v in region_ds.attrs["values"].split(",")],
+    )
+)
 
 
 # ----------------------------------------------
@@ -70,12 +72,15 @@ for region_id in valid_region_ids:
     assert true_da.time == pred_da.time
     datetimes.append(true_da.time)
 
-df = pd.DataFrame({
-    'datetime': datetimes,
-    'region_name': region_name,
-    'predicted_mean_value': predicted_mean_value,
-    'true_mean_value': true_mean_value,
-})
+df = pd.DataFrame(
+    {
+        "datetime": datetimes,
+        "region_name": region_name,
+        "predicted_mean_value": predicted_mean_value,
+        "true_mean_value": true_mean_value,
+    }
+)
+
 
 class TestRegionAnalysis:
     def test_init():

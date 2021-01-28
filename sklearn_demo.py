@@ -5,8 +5,8 @@ from geopandas import GeoDataFrame
 import pickle
 from pathlib import Path
 
-data_dir = Path('/Volumes/Lees_Extend/data/ecmwf_sowc/data')
-gdf = pickle.load(open(data_dir / 'analysis' / 'all_gdf.pkl', 'rb'))
+data_dir = Path("/Volumes/Lees_Extend/data/ecmwf_sowc/data")
+gdf = pickle.load(open(data_dir / "analysis" / "all_gdf.pkl", "rb"))
 
 # --------------------
 # scikit learn modules
@@ -20,6 +20,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction import DictVectorizer
 
 from sklearn.model_selection import train_test_split, GridSearchCV
+
 # from sklearn.metrics import accuracy_score, classification_report
 from sklearn.metrics import mean_squared_error, r2_score
 
@@ -33,17 +34,17 @@ from xgboost.sklearn import XGBClassifier, XGBRegressor
 # feature engineering and selecting variables
 df = gdf.copy()
 # df = gdf.drop(columns='geometry_x')
-df['month'] = df.datetime.dt.month
-df['year'] = df.datetime.dt.year
+df["month"] = df.datetime.dt.month
+df["year"] = df.datetime.dt.year
 datetimes = df.datetime
 # df = df.drop(columns='datetime')
-df = df.dropna(axis=0, how='any')
+df = df.dropna(axis=0, how="any")
 
 # PICKLE load/save
-with open(data_dir / 'analysis' / 'clean_df.pkl', 'wb') as f:
+with open(data_dir / "analysis" / "clean_df.pkl", "wb") as f:
     pickle.dump(pd.DataFrame(df), f)
 
-df = pickle.load(open(data_dir / 'analysis' / 'clean_df.pkl', 'rb'))
+df = pickle.load(open(data_dir / "analysis" / "clean_df.pkl", "rb"))
 
 #
 
@@ -55,19 +56,31 @@ y = df.VCI.values.reshape(-1, 1)
 y = scaler.fit_transform(y)
 
 # train, test split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.3, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42
+)
 
 # preprocessing pipeline
-cat_features = ['region_name', 'month', 'year']
-num_features = ['SMsurf', 'precip', 'E']
+cat_features = ["region_name", "month", "year"]
+num_features = ["SMsurf", "precip", "E"]
 
 # create a sklearn pipeline
-preprocessor = ColumnTransformer([("numerical", StandardScaler(), num_features),
-                                  ("categorical", OneHotEncoder(sparse=False, handle_unknown="ignore"),
-                                   cat_features)])
+preprocessor = ColumnTransformer(
+    [
+        ("numerical", StandardScaler(), num_features),
+        (
+            "categorical",
+            OneHotEncoder(sparse=False, handle_unknown="ignore"),
+            cat_features,
+        ),
+    ]
+)
 
 rf_model = Pipeline(
-    [('preprocessor', preprocessor), ('model', RandomForestRegressor(n_estimators=100, n_jobs=-1))]
+    [
+        ("preprocessor", preprocessor),
+        ("model", RandomForestRegressor(n_estimators=100, n_jobs=-1)),
+    ]
 )
 
 # search for best parameters
@@ -96,20 +109,25 @@ r2_score(y_test, y_pred)
 # ---------------------
 
 # PREPROCESS all features
-cat_features = ['region_name', 'month', 'year']
-num_features = ['SMsurf', 'precip', 'E', 'VCI']
+cat_features = ["region_name", "month", "year"]
+num_features = ["SMsurf", "precip", "E", "VCI"]
 
-preprocessor = ColumnTransformer([("numerical", StandardScaler(), num_features),
-                                  ("categorical", OneHotEncoder(sparse=False, handle_unknown="ignore"),
-                                   cat_features)])
+preprocessor = ColumnTransformer(
+    [
+        ("numerical", StandardScaler(), num_features),
+        (
+            "categorical",
+            OneHotEncoder(sparse=False, handle_unknown="ignore"),
+            cat_features,
+        ),
+    ]
+)
 
 _processed_features = preprocessor.fit_transform(df)
 
-ohe_categories = preprocessor.named_transformers_['categorical'].categories_
+ohe_categories = preprocessor.named_transformers_["categorical"].categories_
 new_ohe_features = [
-    f"{col}__{val}"
-    for col, vals in zip(cat_features, ohe_categories)
-    for val in vals
+    f"{col}__{val}" for col, vals in zip(cat_features, ohe_categories) for val in vals
 ]
 all_features = num_features + new_ohe_features
 

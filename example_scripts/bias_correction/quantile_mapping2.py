@@ -10,7 +10,7 @@ from scipy.stats.mstats import mquantiles
 from scipy.interpolate import interp1d
 
 
-def bias_correction(obs, p, s, method='delta', nbins=10, extrapolate=None):
+def bias_correction(obs, p, s, method="delta", nbins=10, extrapolate=None):
     """Bias Correction techniques for correcting simulated output based on differences between the CDFs of
     observed and simulated output for a training period.
 
@@ -54,29 +54,31 @@ def bias_correction(obs, p, s, method='delta', nbins=10, extrapolate=None):
     TODO: include conditioning on weather types to alleviate the problem that arise when the dry day frequency changes.
     """
 
-    if (method == 'eqm') and (nbins > 1):
-        binmid = np.arange((1./nbins)*0.5, 1., 1./nbins)
+    if (method == "eqm") and (nbins > 1):
+        binmid = np.arange((1.0 / nbins) * 0.5, 1.0, 1.0 / nbins)
         qo = mquantiles(obs[np.isfinite(obs)], prob=binmid)
         qp = mquantiles(p[np.isfinite(p)], prob=binmid)
-        p2o = interp1d(qp, qo, kind='linear', bounds_error=False)
+        p2o = interp1d(qp, qo, kind="linear", bounds_error=False)
         c = p2o(s)
         if extrapolate is None:
             c[s > np.max(qp)] = qo[-1]
             c[s < np.min(qp)] = qo[0]
-        elif extrapolate == 'constant':
+        elif extrapolate == "constant":
             c[s > np.max(qp)] = s[s > np.max(qp)] + qo[-1] - qp[-1]
             c[s < np.min(qp)] = s[s < np.min(qp)] + qo[0] - qp[0]
 
-    elif method == 'delta':
+    elif method == "delta":
         c = obs + (np.nanmean(s) - np.nanmean(p))
 
-    elif method == 'scaling_add':
+    elif method == "scaling_add":
         c = s - np.nanmean(p) + np.nanmean(obs)
 
-    elif method == 'scaling_multi':
-        c = (s/np.nanmean(p)) * np.nanmean(obs)
+    elif method == "scaling_multi":
+        c = (s / np.nanmean(p)) * np.nanmean(obs)
 
     else:
-        raise ValueError("incorrect method, choose from 'delta', 'scaling_add', 'scaling_multi' or 'eqm'")
+        raise ValueError(
+            "incorrect method, choose from 'delta', 'scaling_add', 'scaling_multi' or 'eqm'"
+        )
 
     return c

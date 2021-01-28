@@ -2,11 +2,10 @@ from bs4 import BeautifulSoup
 from ftplib import FTP
 import urllib.request
 
-ftp_path = 'ftp://ftp.ecmwf.int/pub/esowc'
+ftp_path = "ftp://ftp.ecmwf.int/pub/esowc"
 with FTP(ftp_path) as ftp:
     ftp.login()
     ftp.dir()
-
 
 
 req = urllib.request.Request(ftp_path)

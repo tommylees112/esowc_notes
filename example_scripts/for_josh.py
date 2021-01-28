@@ -30,7 +30,9 @@ Run the lines starting with "$" using bash
 
 from pathlib import Path
 
-assert Path('.').absolute().name == "ml_drought", f"You have to run this script from the ml_drought repository"
+assert (
+    Path(".").absolute().name == "ml_drought"
+), f"You have to run this script from the ml_drought repository"
 
 
 from src.exporters import ERA5ExporterPOS
@@ -39,7 +41,9 @@ from src.exporters import ERA5ExporterPOS
 e = ERA5ExporterPOS()
 
 # download precip for 2010 - 2018 (the download should start)
-e.export('precipitation_amount_1hour_Accumulation', years=[y for y in range(2010,2019)])
+e.export(
+    "precipitation_amount_1hour_Accumulation", years=[y for y in range(2010, 2019)]
+)
 
 ####
-# your code analysing the downloaded data 
+# your code analysing the downloaded data

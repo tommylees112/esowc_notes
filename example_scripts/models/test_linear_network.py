@@ -13,18 +13,21 @@ from src.models.utils import chunk_array
 
 from typing import cast, Dict, List, Optional, Tuple, Union
 
-data_path = Path('data')
+data_path = Path("data")
 l = LinearNetwork(layer_sizes=[100], data_folder=data_path)
 
 # l.evaluate()
 # dense layers
 # l.dense_layers
-layer_sizes=[100]
-dense_layers = nn.ModuleList([
-    LinearBlock(in_features=layer_sizes[i - 1],
-                out_features=layer_sizes[i], dropout=dropout) for
-    i in range(1, len(layer_sizes))
-])
+layer_sizes = [100]
+dense_layers = nn.ModuleList(
+    [
+        LinearBlock(
+            in_features=layer_sizes[i - 1], out_features=layer_sizes[i], dropout=dropout
+        )
+        for i in range(1, len(layer_sizes))
+    ]
+)
 
 
 # final dense
@@ -33,27 +36,33 @@ dense_layers = nn.ModuleList([
 final_dense = nn.Linear(in_features=layer_sizes[-1], out_features=1)
 
 # DataLoader
-len_mask = len(DataLoader._load_datasets(data_path, mode='train', shuffle_data=False))
+len_mask = len(DataLoader._load_datasets(data_path, mode="train", shuffle_data=False))
 train_mask, val_mask = train_val_mask(len_mask, 0.3)
 batch_size = 256
 # batch_size=5
-train_dataloader = DataLoader(data_path=data_path,
-                              batch_file_size=batch_size,
-                              shuffle_data=True,
-                              mode='train',
-                              mask=train_mask,
-                              to_tensor=True)
-val_dataloader = DataLoader(data_path=data_path,
-                              batch_file_size=batch_size,
-                              shuffle_data=True,
-                              mode='train',
-                              mask=val_mask,
-                              to_tensor=True)
-test_arrays_loader = DataLoader(data_path=data_path,
-                                batch_file_size=batch_size,
-                                shuffle_data=False,
-                                mode='test',
-                                to_tensor=True)
+train_dataloader = DataLoader(
+    data_path=data_path,
+    batch_file_size=batch_size,
+    shuffle_data=True,
+    mode="train",
+    mask=train_mask,
+    to_tensor=True,
+)
+val_dataloader = DataLoader(
+    data_path=data_path,
+    batch_file_size=batch_size,
+    shuffle_data=True,
+    mode="train",
+    mask=val_mask,
+    to_tensor=True,
+)
+test_arrays_loader = DataLoader(
+    data_path=data_path,
+    batch_file_size=batch_size,
+    shuffle_data=False,
+    mode="test",
+    to_tensor=True,
+)
 
 
 # lm.model = LinearModel()
@@ -61,9 +70,7 @@ test_arrays_loader = DataLoader(data_path=data_path,
 input_size = 55
 layer_sizes = [55, 55, 55, 55, 55, 100]
 dropout = 0.25
-lm = LinearModel(input_size=input_size,
-            layer_sizes=layer_sizes,
-            dropout=dropout)
+lm = LinearModel(input_size=input_size, layer_sizes=layer_sizes, dropout=dropout)
 
 
 # input_size = torch.Size([175670, 55])
@@ -75,10 +82,7 @@ lm = LinearModel(input_size=input_size,
 #
 lm.init_weights()
 learning_rate = 1e-3
-optimizer = torch.optim.Adam(
-    [pam for pam in lm.parameters()],
-    lr=learning_rate
-)
+optimizer = torch.optim.Adam([pam for pam in lm.parameters()], lr=learning_rate)
 
 # ------------------------------------------------------------------------------
 # TRAINING and testing the NN model
@@ -110,7 +114,7 @@ train_rmse.append(loss.item())
 # evaluate on the validation data (EARLY STOPPING)
 lm.eval()
 val_rmse = []
-with torch.no_grad(): # whenever validating on test/validation datasets
+with torch.no_grad():  # whenever validating on test/validation datasets
     for x, y in val_dataloader:
         break
 
@@ -120,18 +124,18 @@ val_loss = F.mse_loss(val_pred_y, y)
 val_rmse.append(val_loss.item())
 
 # get the training RMSE
-print(f'Epoch {epoch + 1}, train RMSE: {np.mean(train_rmse)}')
+print(f"Epoch {epoch + 1}, train RMSE: {np.mean(train_rmse)}")
 
 # STOP early if early_stopping
 epoch_val_rmse = np.mean(val_rmse)
-print(f'Val RMSE: {epoch_val_rmse}')
+print(f"Val RMSE: {epoch_val_rmse}")
 if epoch_val_rmse < best_val_score:
     batches_without_improvement = 0
     best_val_score = epoch_val_rmse
 else:
     batches_without_improvement += 1
     if batches_without_improvement == early_stopping:
-        print('Early stopping!')
+        print("Early stopping!")
         return None
 
 # ------------------------------------------------------------------------------
@@ -146,5 +150,5 @@ with torch.no_grad():
 
             preds = lm(val.x)
             preds_dict[key] = preds.numpy()
-            test_arrays_dict[key] = {'y': val.y.numpy(), 'latlons': val.latlons}
+            test_arrays_dict[key] = {"y": val.y.numpy(), "latlons": val.latlons}
             break

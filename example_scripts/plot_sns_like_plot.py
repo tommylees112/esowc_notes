@@ -16,5 +16,5 @@ left_ax.set_axis_off()
 main_ax = fig.add_subplot(gs[2])
 
 top_ax.hist(x1, bins=30)
-left_ax.hist(x2, bins=30, orientation='horizontal')
+left_ax.hist(x2, bins=30, orientation="horizontal")
 main_ax.scatter(x1, x2, alpha=0.6)

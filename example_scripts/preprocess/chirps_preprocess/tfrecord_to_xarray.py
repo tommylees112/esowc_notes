@@ -16,20 +16,17 @@ def find_timestep(string: str) -> str:
     ts = ts_regex.findall(string)[0]
 
     # return either empty string or the captured year
-    ts = ts if ts != [] else ''
+    ts = ts if ts != [] else ""
 
     return ts
-
-
-
 
 
 def dict_to_ds(dict_: Dict) -> xr.Dataset:
     df = pd.DataFrame(dict_)
     try:
-        df = df.set_index(['latitude', 'longitude', 'time'])
+        df = df.set_index(["latitude", "longitude", "time"])
     except KeyError:
-        df = df.set_index(['lat', 'lon', 'time'])
+        df = df.set_index(["lat", "lon", "time"])
 
     ds = df.to_xarray()
 
@@ -52,9 +49,9 @@ def get_dict_from_tf_feature(result: tf_Feature, idx: int, keys: List) -> dict:
     # parsed_time = pd.to_datetime(find_timestep(string))
 
     # if none of the timestamps can be found
-    if all([find_timestep(key) == '' for key in out.keys()]):
+    if all([find_timestep(key) == "" for key in out.keys()]):
         times = [idx for _ in range(n_pixels)]
-    out['time'] = times
+    out["time"] = times
 
     return out
 

@@ -4,6 +4,10 @@ Correlate VCI / Precip with ENSO time series
 http://martin-jung.github.io/post/2018-xarrayregression/
 
 https://github.com/pydata/xarray/issues/1115#issuecomment-451052107
+
+USE mvstats
+https://github.com/hrishikeshac/mvstats
+!pip install git+https://github.com/hrishikeshac/mvstats.git
 """
 
 from pathlib import Path
@@ -278,6 +282,7 @@ if False:
 # https://github.com/pydata/xarray/issues/1115
 # https://github.com/pydata/xarray/pull/3550
 # mvstats = https://github.com/hrishikeshac/mvstats/blob/master/mvstats/mvstats.py
+# pip install git+git://github.com/hrishikeshac/mvstats
 
 import mvstats.mvstats as mv
 
